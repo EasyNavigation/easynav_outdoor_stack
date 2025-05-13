@@ -22,4 +22,4 @@ Running the Simulation:
      --params-file <your_workspace>/src/easynav_outdoor_stack/easynav_gps_vff/summit_sim.params.yaml
 ```
 
-Replace ``<your_workspace>`` with the path to your ROS 2 workspace.
+3. Send a Goal from the `2D Goal Pose` button on RViz2
