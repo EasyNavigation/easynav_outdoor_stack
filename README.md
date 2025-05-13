@@ -1,2 +1,28 @@
 # easynav_outdoor_stack
 
+<<<<<<< HEAD
+=======
+
+
+
+
+# VFF-based outdoor navigation system
+
+This repository contains the **VFF-based outdoor navigation system** for robots using **GPS input**.
+
+To test the system, use the following simulation repository: https://github.com/EasyNavigation/easynav_playground_summit.git
+
+Running the Simulation:
+
+1. Launch the simulation environment using the `easynav_playground_summit` repo.
+
+2. In a new terminal, run the navigation system with:
+
+```
+   ros2 run easynav_system system_main \
+     --ros-args \
+     --params-file <your_workspace>/src/easynav_outdoor_stack/easynav_gps_vff/summit_sim.params.yaml
+```
+
+Replace ``<your_workspace>`` with the path to your ROS 2 workspace.
+>>>>>>> 71bbe75 (Update README.md)
