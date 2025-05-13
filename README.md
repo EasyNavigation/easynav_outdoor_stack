@@ -19,4 +19,3 @@ Running the Simulation:
 ```
 
 3. Send a Goal from the `2D Goal Pose` button on RViz2
-
