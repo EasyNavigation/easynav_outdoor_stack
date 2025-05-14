@@ -13,7 +13,6 @@
   <depend>rclcpp_lifecycle</depend>
   <depend>pluginlib</depend>
   <depend>easynav_core</depend>
-  <depend>robot_localization</depend>
   <depend>visualization_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>

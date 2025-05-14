@@ -43,6 +43,7 @@ target_include_directories(gps_localizer PUBLIC
 ament_target_dependencies(gps_localizer
   easynav_core
   pluginlib
+  geographic_msgs
   robot_localization
 )
 

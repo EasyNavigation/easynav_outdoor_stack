@@ -14,7 +14,6 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(easynav_core REQUIRED)
 find_package(pluginlib REQUIRED)
-find_package(robot_localization REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
 set(dependencies
@@ -22,7 +21,6 @@ set(dependencies
   rclcpp_lifecycle
   easynav_core
   pluginlib
-  robot_localization
   visualization_msgs
 )
 
@@ -36,7 +34,6 @@ target_include_directories(vff_controller PUBLIC
 ament_target_dependencies(vff_controller
   easynav_core
   pluginlib
-  robot_localization
   visualization_msgs
 )
 
