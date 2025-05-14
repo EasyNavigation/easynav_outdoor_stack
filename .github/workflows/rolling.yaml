@@ -21,11 +21,7 @@ jobs:
       - name: Checkout EasyNav code
         uses: actions/checkout@v4
         with:
-          repository: EasyNavigation/EasyNavigation
-      - name: Checkout Navigation2 code
-        uses: actions/checkout@v4
-        with:
-          repository: ros-navigation/navigation2
+          repository: EasyNavigation/EasyNavigation.git
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.10
         with:
@@ -33,7 +29,7 @@ jobs:
       - name: build and test
         uses: ros-tooling/action-ros-ci@0.4.1
         with:
-          package-name: easynav_costmap_maps_manager easynav_common easynav_core nav2_costmap_2d nav2_map_server
+          package-name: easynav_simple_maps_manager
           target-ros2-distro: rolling
           colcon-defaults: |
             {
