@@ -31,7 +31,7 @@ jobs:
       - name: build and test
         uses: ros-tooling/action-ros-ci@0.3.13
         with:
-          package-name: easynav_outdoor_maps_builder easynav_outdoor_maps_generator
+          package-name: easynav_outdoor_maps_builder easynav_outdoor_maps_manager
           target-ros2-distro: rolling
           skip-test: true
           colcon-defaults: |
