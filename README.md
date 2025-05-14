@@ -21,7 +21,7 @@ Running the Simulation:
 ```
    ros2 run easynav_system system_main \
      --ros-args \
-     --params-file <your_workspace>/src/easynav_outdoor_stack/easynav_gps_vff/summit_sim.params.yaml
+     --params-file <your_workspace>/src/easynav_outdoor_stack/robots_params/summit_sim.params.yaml
 ```
 
 <<<<<<< HEAD
