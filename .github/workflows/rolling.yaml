@@ -33,8 +33,6 @@ jobs:
         with:
           package-name: easynav_outdoor_maps_builder easynav_outdoor_maps_generator
           target-ros2-distro: rolling
-          import-token: ${{ secrets.GITHUB_TOKEN }}
-          vcs-repo-file-url: ${GITHUB_WORKSPACE}/thirdparty.repos
           skip-test: true
           colcon-defaults: |
             {
