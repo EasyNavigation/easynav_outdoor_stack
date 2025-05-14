@@ -20,18 +20,20 @@ jobs:
       - name: Repo checkout
         uses: actions/checkout@v4
 
+      - name: Checkout EasyNav code
+        uses: actions/checkout@v4
+        with:
+          repository: EasyNavigation/EasyNavigation
+
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.10
         with:
           required-ros-distributions: rolling
-      
-      - name: Clone dependency repository
-        run: git clone https://github.com/EasyNavigation/EasyNavigation.git 
 
       - name: build and test
         uses: ros-tooling/action-ros-ci@0.4.1
         with:
-          package-name: easynav_outdoor_maps_builder easynav_outdoor_maps_manager
+          package-name: easynav_common easynav_core easynav_outdoor_maps_builder easynav_outdoor_maps_manager
           target-ros2-distro: rolling
           skip-test: true
           colcon-defaults: |
