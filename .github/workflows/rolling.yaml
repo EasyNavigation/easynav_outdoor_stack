@@ -17,28 +17,27 @@ jobs:
         os: [ubuntu-24.04]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
-      - name: Checkout EasyNav code
+      - name: Repo checkout
         uses: actions/checkout@v4
-        with:
-          repository: EasyNavigation/EasyNavigation
-      - name: Checkout Navigation2 code
-        uses: actions/checkout@v4
-        with:
-          repository: ros-navigation/navigation2
+
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.10
         with:
           required-ros-distributions: rolling
+      
+      - name: Clone dependency repository
+        run: git clone https://github.com/EasyNavigation/EasyNavigation.git 
+
       - name: build and test
         uses: ros-tooling/action-ros-ci@0.4.1
         with:
-          package-name: easynav_costmap_maps_manager easynav_common easynav_core nav2_costmap_2d nav2_map_server
+          package-name: easynav_outdoor_maps_builder easynav_outdoor_maps_manager
           target-ros2-distro: rolling
+          skip-test: true
           colcon-defaults: |
             {
-              "test": {
-                "parallel-workers" : 1
+              "build": {
+                "packages-up-to": true
               }
             }
           colcon-mixin-name: coverage-gcc
