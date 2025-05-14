@@ -87,8 +87,6 @@ void GpsLocalizer::update(const NavState & nav_state)
 
 void GpsLocalizer::update_rt(const NavState & nav_state)
 {
-
-
   // Convert GPS coordinates to UTM
   double utm_x, utm_y;
   std::string utm_zone;
@@ -103,7 +101,7 @@ void GpsLocalizer::update_rt(const NavState & nav_state)
     origin_utm_.y = utm_y;
   }
 
-  // Get XY cartesian coordinates respect to the origin  
+  // Get XY cartesian coordinates respect to the origin
   odom_.header.stamp = nav_state.timestamp;
   odom_.header.frame_id = "map";
   odom_.child_frame_id = "base_link";

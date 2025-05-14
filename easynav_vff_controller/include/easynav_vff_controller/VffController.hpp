@@ -20,8 +20,8 @@
 /// \file
 /// \brief Declaration of the VffController method.
 
-#ifndef EASYNAV_CONTROLLER__VffCONTROLLER_HPP_
-#define EASYNAV_CONTROLLER__VffCONTROLLER_HPP_
+#ifndef EASYNAV_CONTROLLER__VFFCONTROLLER_HPP_
+#define EASYNAV_CONTROLLER__VFFCONTROLLER_HPP_
 
 #include <expected>
 
@@ -111,12 +111,12 @@ private:
   /**
    * @brief Current robot velocity command.
    */
-  geometry_msgs::msg::TwistStamped cmd_vel_ {};
+  geometry_msgs::msg::TwistStamped cmd_vel_;
 
   /**
    * @brief Current robot odometry.
    */
-  geometry_msgs::msg::Point goal_ {};
+  geometry_msgs::msg::Point goal_;
 
   /**
    * @brief Normalizes an angle to the range [-π, π].
@@ -224,4 +224,4 @@ private:
 
 }  // namespace easynav
 
-#endif  // EASYNAV_CONTROLLER__VffCONTROLLER_HPP_
+#endif  // EASYNAV_CONTROLLER__VFFCONTROLLER_HPP_
