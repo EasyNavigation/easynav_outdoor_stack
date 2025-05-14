@@ -1,11 +1,5 @@
 # easynav_outdoor_stack
 
-<<<<<<< HEAD
-=======
-
-
-
-
 # VFF-based outdoor navigation system
 
 This repository contains the **VFF-based outdoor navigation system** for robots using **GPS input**.
@@ -24,9 +18,4 @@ Running the Simulation:
      --params-file <your_workspace>/src/easynav_outdoor_stack/robots_params/summit_sim.params.yaml
 ```
 
-<<<<<<< HEAD
-Replace ``<your_workspace>`` with the path to your ROS 2 workspace.
->>>>>>> 71bbe75 (Update README.md)
-=======
 3. Send a Goal from the `2D Goal Pose` button on RViz2
->>>>>>> 147dcde (Update README.md)
