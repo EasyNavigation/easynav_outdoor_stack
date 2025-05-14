@@ -20,8 +20,8 @@
 /// \file
 /// \brief Declaration of the GpsLocalizer class, a default plugin implementation for localization.
 
-#ifndef EASYNAV_LOCALIZER__GpsLOCALIZER_HPP_
-#define EASYNAV_LOCALIZER__GpsLOCALIZER_HPP_
+#ifndef EASYNAV_LOCALIZER__GPSLOCALIZER_HPP_
+#define EASYNAV_LOCALIZER__GPSLOCALIZER_HPP_
 
 #include <expected>
 
@@ -106,7 +106,7 @@ private:
    *
    * Stores the estimated position and velocity of the robot.
    */
-  nav_msgs::msg::Odometry odom_ {};
+  nav_msgs::msg::Odometry odom_;
 
   /**
    * @brief Origin UTM coordinates.
@@ -114,7 +114,7 @@ private:
    * Stores the first UTM coordinates obtained from the GPS data.
    * It is used to calculate the relative position of the robot in the UTM coordinate system.
    */
-  geometry_msgs::msg::Point origin_utm_ {};
+  geometry_msgs::msg::Point origin_utm_;
 
   /**
    * @brief Subscriber for GPS data.
@@ -126,7 +126,7 @@ private:
 
   /**
    * @brief Subscriber to the IMU data.
-   * 
+   *
    * This subscriber listens to the IMU data published on the "imu/data" topic.
    * It is used to obtain the robot's orientation.
    * The IMU data is used to calculate the yaw angle of the robot.
@@ -180,4 +180,4 @@ private:
 
 }  // namespace easynav
 
-#endif  // EASYNAV_LOCALIZER__GpsLOCALIZER_HPP_
+#endif  // EASYNAV_LOCALIZER__GPSLOCALIZER_HPP_

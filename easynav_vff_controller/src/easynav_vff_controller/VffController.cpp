@@ -239,7 +239,7 @@ void VffController::update_rt(const NavState & nav_state)
     double dy = goal_.y - current_y_;
 
     // Calculate the Euclidean distance to the goal
-    double distance = std::hypot(dx, dy);  // more stable than sqrt(pow(..., 2))
+    double distance = std::hypot(dx, dy);
 
     // Calculate the angle to the goal
     double bearing = normalize_angle(std::atan2(dy, dx));
@@ -268,13 +268,14 @@ void VffController::update_rt(const NavState & nav_state)
     } else {
       target_reached_ = false;
     }
-    
+
     auto fused =
       PerceptionsOpsView(nav_state.perceptions)
-            .filter({-10.0, -10.0, -10.0}, {10.0, 10.0, 10.0})
-            .fuse(cmd_vel_.header.frame_id)
-            ->filter({obstacle_detection_x_min_, obstacle_detection_y_min_, obstacle_detection_z_min_},{obstacle_detection_x_max_, obstacle_detection_y_max_,
-        obstacle_detection_z_max_}).as_points();
+      .filter({-10.0, -10.0, -10.0}, {10.0, 10.0, 10.0})
+      .fuse(cmd_vel_.header.frame_id)
+      ->filter({obstacle_detection_x_min_, obstacle_detection_y_min_, obstacle_detection_z_min_},
+        {obstacle_detection_x_max_, obstacle_detection_y_max_,
+          obstacle_detection_z_max_}).as_points();
 
     // Get VFF vectors
     const VFFVectors & vff = get_vff(angle_error, fused, cmd_vel_.header.frame_id);
