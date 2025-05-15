@@ -96,7 +96,7 @@ void GpsLocalizer::update_rt(const NavState & nav_state)
 
   GeographicLib::UTMUPS::Forward(lat, lon, zone, northp, utm_x, utm_y);
   std::string utm_zone = std::to_string(zone) + (northp ? "N" : "S");
-  
+
   if (origin_utm_ == geometry_msgs::msg::Point() &&
     gps_msg_ != sensor_msgs::msg::NavSatFix())
   {
