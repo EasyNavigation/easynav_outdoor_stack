@@ -88,11 +88,15 @@ void GpsLocalizer::update(const NavState & nav_state)
 void GpsLocalizer::update_rt(const NavState & nav_state)
 {
   // Convert GPS coordinates to UTM
+  double lat = gps_msg_.latitude;
+  double lon = gps_msg_.longitude;
   double utm_x, utm_y;
-  std::string utm_zone;
-  robot_localization::navsat_conversions::LLtoUTM(
-    gps_msg_.latitude, gps_msg_.longitude, utm_y, utm_x, utm_zone);
+  int zone;
+  bool northp;
 
+  GeographicLib::UTMUPS::Forward(lat, lon, zone, northp, utm_x, utm_y);
+  std::string utm_zone = std::to_string(zone) + (northp ? "N" : "S");
+  
   if (origin_utm_ == geometry_msgs::msg::Point() &&
     gps_msg_ != sensor_msgs::msg::NavSatFix())
   {

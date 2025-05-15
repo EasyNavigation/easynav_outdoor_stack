@@ -15,7 +15,6 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(easynav_core REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(geographic_msgs REQUIRED)
-find_package(robot_localization REQUIRED)
 
 # Geographiclib installs FindGeographicLib.cmake to this non-standard location
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/share/cmake/geographiclib/")
@@ -30,7 +29,6 @@ set(dependencies
   easynav_core
   pluginlib
   geographic_msgs
-  robot_localization
 )
 
 add_library(gps_localizer SHARED
@@ -44,10 +42,10 @@ ament_target_dependencies(gps_localizer
   easynav_core
   pluginlib
   geographic_msgs
-  robot_localization
 )
 
 target_link_libraries(gps_localizer
+  GeographicLib
   ${GeographicLib_LIBRARIES}
 )
 

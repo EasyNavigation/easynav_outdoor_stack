@@ -28,10 +28,10 @@
 #include "nav_msgs/msg/odometry.hpp"
 #include "sensor_msgs/msg/nav_sat_fix.hpp"
 #include "easynav_core/LocalizerMethodBase.hpp"
-#include "robot_localization/navsat_conversions.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2_ros/static_transform_broadcaster.h"
 #include "sensor_msgs/msg/imu.hpp"
+#include <GeographicLib/UTMUPS.hpp>
 
 namespace easynav
 {
