@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['easynav_5foutdoor_5fstack_0',['easynav_outdoor_stack',['../index.html',1,'']]]
+  ['based_20outdoor_20navigation_20system_0',['VFF-based outdoor navigation system',['../index.html#autotoc_md1',1,'']]]
 ];

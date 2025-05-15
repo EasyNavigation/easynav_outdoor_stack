@@ -88,6 +88,21 @@ $(function(){ initResizable(false); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
+<h1><a class="anchor" id="autotoc_md1"></a>
+VFF-based outdoor navigation system</h1>
+<p>This repository contains the <b>VFF-based outdoor navigation system</b> for robots using <b>GPS input</b>.</p>
+<p>To test the system, use the following simulation repository: <a href="https://github.com/EasyNavigation/easynav_playground_summit.git">https://github.com/EasyNavigation/easynav_playground_summit.git</a></p>
+<p>Running the Simulation:</p>
+<ol type="1">
+<li>Launch the simulation environment using the <code>easynav_playground_summit</code> repo.</li>
+<li>In a new terminal, run the navigation system with:</li>
+</ol>
+<div class="fragment"><div class="line">ros2 run easynav_system system_main \</div>
+<div class="line">  --ros-args \</div>
+<div class="line">  --params-file &lt;your_workspace&gt;/src/easynav_outdoor_stack/robots_params/summit_sim.params.yaml</div>
+</div><!-- fragment --><ol type="1">
+<li>Send a Goal from the <code>2D Goal Pose</code> button on RViz2 </li>
+</ol>
 </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>
 </div><!-- contents -->
