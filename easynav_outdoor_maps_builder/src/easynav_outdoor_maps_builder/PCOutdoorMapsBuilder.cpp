@@ -18,7 +18,14 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /// \file
-/// \brief Implementation of the PCMapBuilder class.
+/// \brief Implementation of the PCOutdoorMapsBuilder class.
+
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/macros.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+
+#include "lifecycle_msgs/msg/transition.hpp"
+#include "lifecycle_msgs/msg/state.hpp"
 
 #include "easynav_outdoor_maps_builder/PCOutdoorMapsBuilder.hpp"
 #include "easynav_common/types/Perceptions.hpp"
@@ -26,36 +33,56 @@
 namespace easynav
 {
 
-PCMapsBuilder::PCMapsBuilder(const rclcpp::NodeOptions & options)
-: MapsBuilder(options)
+PCOutdoorMapsBuilder::PCOutdoorMapsBuilder(const rclcpp::NodeOptions & options)
+: OutdoorMapsBuilder(options)
 {
   pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(
-        "map_builder/pcl_points", rclcpp::QoS(1).transient_local().reliable());
+        "/map_builder/cloud_filtered", rclcpp::QoS(1).transient_local().reliable());
 }
 
-void PCMapsBuilder::build_map()
+OutdoorMapsBuilder::CallbackReturnT
+PCOutdoorMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
 {
 
-  if (perception_.data.empty()) {
-    RCLCPP_WARN(this->get_logger(), "No perceptions available.");
-    return;
-  }
-  Perceptions perceptions;
+  (void)state;
 
-  perceptions.push_back(std::make_shared<Perception>(perception_));
-  auto downsampled = PerceptionsOpsView(perceptions).downsample(downsample_resolution_);
+  pub_->on_activate();
 
-  auto downsampled_points = downsampled.as_points(0);
-
-  if (downsampled_points.empty()) {
-    RCLCPP_WARN(this->get_logger(), "Downsampled cloud is empty.");
-    return;
-  }
-
-  auto msg = points_to_rosmsg(downsampled_points);
-  msg.header.frame_id = perception_.frame_id;
-  msg.header.stamp = perception_.stamp;
-  pub_->publish(msg);
+  return CallbackReturnT::SUCCESS;
 }
 
+OutdoorMapsBuilder::CallbackReturnT
+PCOutdoorMapsBuilder::on_deactivate(const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+
+  pub_->on_deactivate();
+
+  return CallbackReturnT::SUCCESS;
+}
+
+void PCOutdoorMapsBuilder::cycle()
+{
+  if (pub_->get_subscription_count() > 0) {
+
+    auto downsampled = PerceptionsOpsView(perceptions_).downsample(downsample_resolution_);
+    auto downsampled_points = downsampled.as_points(0);
+
+    if (downsampled_points.empty()) {
+      return;
+    }
+
+    auto msg = points_to_rosmsg(downsampled_points);
+    msg.header.frame_id = perception_default_frame_;
+    msg.header.stamp = perceptions_[0]->stamp;
+    pub_->publish(msg);
+
+      // mark perceptions as not new after published
+    for (auto & perception : perceptions_) {
+      if (perception->new_data) {
+        perception->new_data = false;
+      }
+    }
+  }
+}
 } // namespace easynav

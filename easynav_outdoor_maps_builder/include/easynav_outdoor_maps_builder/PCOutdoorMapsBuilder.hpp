@@ -18,7 +18,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /// \file
-/// \brief Declaration of PCMapBuilder class.
+/// \brief Definition of the PCOutdoorMapsBuilder class for point cloud-based map generation.
 
 #ifndef EASYNAV_OUTDOOR_MAPS_BUILDER__PCOUTDOORMAPSBUILDER_HPP_
 #define EASYNAV_OUTDOOR_MAPS_BUILDER__PCOUTDOORMAPSBUILDER_HPP_
@@ -29,28 +29,32 @@
 
 namespace easynav
 {
-  /**
-   * @brief Concrete implementation of MapsBuilder using PointCloud2 data.
-   *
-   * This class extends MapsBuilder to build maps specifically from point cloud data.
-   */
-class PCMapsBuilder : public MapsBuilder
+
+  /// \class PCOutdoorMapsBuilder
+  /// \brief Derived class of OutdoorMapsBuilder specialized in handling point cloud data.
+class PCOutdoorMapsBuilder : public OutdoorMapsBuilder
 {
 public:
-    /**
-     * @brief Constructor for PCMapsBuilder.
-     * @param options Node options used for ROS2 node initialization.
-     */
-  explicit PCMapsBuilder(const rclcpp::NodeOptions & options);
+    /// \brief Constructor.
+    /// \param options Node configuration options.
+  explicit PCOutdoorMapsBuilder(const rclcpp::NodeOptions & options);
 
-    /**
-     * @brief Implements the abstract build_map method to build the map from point cloud data.
-     */
-  void build_map() override;
+    /// \brief Lifecycle method called when the node is activated.
+    /// \param state Current lifecycle state.
+    /// \return SUCCESS or FAILURE.
+  CallbackReturnT on_activate(const rclcpp_lifecycle::State & state) override;
 
-private:
-    /// Publisher to publish processed PointCloud2 map data.
-  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_;
+    /// \brief Lifecycle method called when the node is deactivated.
+    /// \param state Current lifecycle state.
+    /// \return SUCCESS or FAILURE.
+  CallbackReturnT on_deactivate(const rclcpp_lifecycle::State & state) override;
+
+    /// \brief Method executed in each processing cycle when new data is available.
+  void cycle() override;
+
+protected:
+    /// \brief Lifecycle publisher for the processed point cloud data.
+  rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_;
 };
 
 } // namespace easynav

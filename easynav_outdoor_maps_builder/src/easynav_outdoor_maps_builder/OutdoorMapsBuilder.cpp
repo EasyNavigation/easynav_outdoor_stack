@@ -18,7 +18,16 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /// \file
-/// \brief Implementation of the MapBuilder class.
+/// \brief Implementation of the OutdoorMapsBuilder class.
+
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/macros.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+
+#include "lifecycle_msgs/msg/transition.hpp"
+#include "lifecycle_msgs/msg/state.hpp"
+
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 #include "easynav_outdoor_maps_builder/OutdoorMapsBuilder.hpp"
 #include "easynav_common/types/Perceptions.hpp"
@@ -26,38 +35,97 @@
 namespace easynav
 {
 
-MapsBuilder::MapsBuilder(const rclcpp::NodeOptions & options)
-: rclcpp::Node("maps_builder_node", options)
+OutdoorMapsBuilder::OutdoorMapsBuilder(const rclcpp::NodeOptions & options)
+: rclcpp_lifecycle::LifecycleNode("maps_builder_node", options)
 {
-  if (!this->has_parameter("sensor_topic")) {
-    this->declare_parameter("sensor_topic", "points");
-  }
-  this->get_parameter("sensor_topic", sensor_topic_);
+  cbg_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
-  if (!this->has_parameter("downsample_resolution")) {
-    this->declare_parameter("downsample_resolution", 1.0);
+  if (!has_parameter("sensor_topic")) {
+    declare_parameter("sensor_topic", "points");
   }
-  this->get_parameter("downsample_resolution", downsample_resolution_);
 
-  if (!this->has_parameter("perception_default_frame")) {
-    this->declare_parameter("perception_default_frame", "map");
+  if (!has_parameter("downsample_resolution")) {
+    declare_parameter("downsample_resolution", 1.0);
   }
-  this->get_parameter("perception_default_frame", perception_default_frame_);
-  auto qos = rclcpp::QoS(rclcpp::KeepLast(10))
-    .reliable()
-    .durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
 
-  pointcloud_sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-        sensor_topic_, qos,
-        std::bind(&MapsBuilder::perception_callback, this, std::placeholders::_1));
+  if (!has_parameter("perception_default_frame")) {
+    declare_parameter("perception_default_frame", "map");
+  }
 }
 
-void MapsBuilder::perception_callback(const typename sensor_msgs::msg::PointCloud2::SharedPtr msg)
+OutdoorMapsBuilder::~OutdoorMapsBuilder()
 {
-  pcl::fromROSMsg(*msg, perception_.data);
-  perception_.frame_id = msg->header.frame_id;
-  perception_.stamp = msg->header.stamp;
-  perception_.valid = true;
-  build_map();
+  if (get_current_state().id() != lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
+    trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_ACTIVE_SHUTDOWN);
+  }
 }
+
+using CallbackReturnT = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
+CallbackReturnT
+OutdoorMapsBuilder::on_configure(const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+
+  get_parameter("sensor_topic", sensor_topic_);
+  get_parameter("downsample_resolution", downsample_resolution_);
+  get_parameter("perception_default_frame", perception_default_frame_);
+
+  auto perception_entry = std::make_shared<Perception>();
+  perception_entry->data.points.clear();
+  perception_entry->data.clear();
+  perception_entry->frame_id = "";
+  perception_entry->stamp = now();
+  perception_entry->valid = false;
+  perception_entry->new_data = true;
+
+  perceptions_.push_back(perception_entry);
+
+  perception_entry->subscription = create_typed_subscription<sensor_msgs::msg::PointCloud2>(
+        *this, sensor_topic_, perception_entry, cbg_);
+
+  return CallbackReturnT::SUCCESS;
+}
+
+OutdoorMapsBuilder::CallbackReturnT OutdoorMapsBuilder::on_activate(
+  const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+
+  return CallbackReturnT::SUCCESS;
+}
+
+OutdoorMapsBuilder::CallbackReturnT OutdoorMapsBuilder::on_deactivate(
+  const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+  return CallbackReturnT::SUCCESS;
+}
+
+OutdoorMapsBuilder::CallbackReturnT OutdoorMapsBuilder::on_cleanup(
+  const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+  return CallbackReturnT::SUCCESS;
+}
+
+OutdoorMapsBuilder::CallbackReturnT OutdoorMapsBuilder::on_shutdown(
+  const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+  return CallbackReturnT::SUCCESS;
+}
+
+OutdoorMapsBuilder::CallbackReturnT OutdoorMapsBuilder::on_error(
+  const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+  return CallbackReturnT::SUCCESS;
+}
+
+rclcpp::CallbackGroup::SharedPtr OutdoorMapsBuilder::get_cbg()
+{
+  return cbg_;
+}
+
 } // namespace easynav

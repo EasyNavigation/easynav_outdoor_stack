@@ -12,6 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(easynav_common REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -19,6 +20,7 @@ find_package(geometry_msgs REQUIRED)
 
 set(dependencies
   rclcpp
+  rclcpp_lifecycle
   sensor_msgs
   std_msgs
   geometry_msgs
@@ -35,9 +37,9 @@ add_library(${PROJECT_NAME} SHARED
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
 # Executable
-add_executable(maps_builder_main src/maps_builder_main.cpp)
-ament_target_dependencies(maps_builder_main ${dependencies})
-target_link_libraries(maps_builder_main ${PROJECT_NAME})
+add_executable(outdoor_maps_builder_main src/outdoor_maps_builder_main.cpp)
+ament_target_dependencies(outdoor_maps_builder_main ${dependencies})
+target_link_libraries(outdoor_maps_builder_main ${PROJECT_NAME})
 
 # Install headers
 install(DIRECTORY include/
@@ -47,7 +49,7 @@ install(DIRECTORY include/
 # Install targets
 install(TARGETS
   ${PROJECT_NAME}
-  maps_builder_main
+  outdoor_maps_builder_main
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

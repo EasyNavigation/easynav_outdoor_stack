@@ -16,68 +16,95 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 /// \file
-/// \brief Declaration of MapBuilder class.
+/// \brief Declaration of the OutdoorMapsBuilder base class used for generating outdoor maps from slam cloud.
 
 #ifndef EASYNAV_OUTDOOR_MAPS_BUILDER__OUTDOORMAPSBUILDER_HPP_
 #define EASYNAV_OUTDOOR_MAPS_BUILDER__OUTDOORMAPSBUILDER_HPP_
 
 #include "rclcpp/rclcpp.hpp"
-
 #include "easynav_common/types/Perceptions.hpp"
-
 #include "sensor_msgs/msg/point_cloud2.hpp"
+
 namespace easynav
 {
 
-  /**
-   * @brief Abstract base class for building maps from sensor data.
-   *
-   * This class inherits from rclcpp::Node and subscribes to a PointCloud2 topic
-   * to build maps via the build_map() method, which must be implemented by derived classes.
-   */
-
-class MapsBuilder : public rclcpp::Node
+  /// \class OutdoorMapsBuilder
+  /// \brief Abstract base class for map builders that operate in outdoor environments using point cloud data.
+class OutdoorMapsBuilder : public rclcpp_lifecycle::LifecycleNode
 {
 public:
-    /**
-     * @brief Constructor for MapsBuilder.
-     * @param options Configuration options for the ROS2 node.
-     */
+  RCLCPP_SMART_PTR_DEFINITIONS(OutdoorMapsBuilder)
 
-  explicit MapsBuilder(const rclcpp::NodeOptions & options);
+    /// \brief Alias for the lifecycle callback return type.
+  using CallbackReturnT = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
-    /**
-     * @brief Default virtual destructor.
-     */
+    /// \brief Constructor.
+    /// \param options Node configuration options.
+  explicit OutdoorMapsBuilder(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
-  virtual ~MapsBuilder() = default;
+    /// \brief Destructor.
+  ~OutdoorMapsBuilder();
 
-    /**
-     * @brief Pure virtual method to build the map.
-     * Must be implemented in derived classes.
-     */
-  virtual void build_map() = 0;
+    /// \brief Lifecycle method called when configuring the node.
+    /// \param state Current lifecycle state.
+    /// \return SUCCESS or FAILURE.
+  CallbackReturnT on_configure(const rclcpp_lifecycle::State & state);
+
+    /// \brief Lifecycle method called when activating the node.
+    /// \param state Current lifecycle state.
+    /// \return SUCCESS or FAILURE.
+  CallbackReturnT on_activate(const rclcpp_lifecycle::State & state);
+
+    /// \brief Lifecycle method called when deactivating the node.
+    /// \param state Current lifecycle state.
+    /// \return SUCCESS or FAILURE.
+  CallbackReturnT on_deactivate(const rclcpp_lifecycle::State & state);
+
+    /// \brief Lifecycle method called during cleanup.
+    /// \param state Current lifecycle state.
+    /// \return SUCCESS or FAILURE.
+  CallbackReturnT on_cleanup(const rclcpp_lifecycle::State & state);
+
+    /// \brief Lifecycle method called on shutdown.
+    /// \param state Current lifecycle state.
+    /// \return SUCCESS or FAILURE.
+  CallbackReturnT on_shutdown(const rclcpp_lifecycle::State & state);
+
+    /// \brief Lifecycle method called on error.
+    /// \param state Current lifecycle state.
+    /// \return SUCCESS or FAILURE.
+  CallbackReturnT on_error(const rclcpp_lifecycle::State & state);
+
+    /// \brief Get the callback group associated with this node.
+    /// \return Shared pointer to the callback group.
+  rclcpp::CallbackGroup::SharedPtr get_cbg();
+
+    /// \brief Get the current perceptions collected by the node.
+    /// \return A Perceptions object containing sensor-derived data.
+  const Perceptions get_perceptions() const {return perceptions_;}
+
+    /// \brief Abstract method to be implemented by derived classes to define behavior on each processing cycle.
+  virtual void cycle() = 0;
 
 protected:
-    /// Subscription to the PointCloud2 sensor topic.
+    /// \brief Subscription to the point cloud topic.
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
 
-    /// Object representing processed perceptions.
-  Perception perception_;
-    /// Name of the sensor topic from which data is received.
+    /// \brief Container for storing perception data.
+  Perceptions perceptions_;
+
+    /// \brief Topic name for the point cloud sensor.
   std::string sensor_topic_;
-    /// Resolution used for downsampling the point cloud.
+
+    /// \brief Voxel downsampling resolution to reduce point cloud density.
   double downsample_resolution_;
 
-    /// Default reference frame for the perception data.
+    /// \brief Default frame of reference used for perception data.
   std::string perception_default_frame_;
-    /**
-     * @brief Callback function that processes received PointCloud2 messages.
-     * @param msg Shared pointer to the received point cloud message.
-     */
-  void perception_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
+
+    /// \brief Callback group to manage concurrency and executor behavior.
+  rclcpp::CallbackGroup::SharedPtr cbg_;
 };
 
 } // namespace easynav
