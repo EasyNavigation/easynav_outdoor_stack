@@ -101,8 +101,16 @@ VFF-based outdoor navigation system</h1>
 <div class="line">  --ros-args \</div>
 <div class="line">  --params-file &lt;your_workspace&gt;/src/easynav_outdoor_stack/robots_params/summit_sim.params.yaml</div>
 </div><!-- fragment --><ol type="1">
-<li>Send a Goal from the <code>2D Goal Pose</code> button on RViz2 </li>
+<li>Send a Goal from the <code>2D Goal Pose</code> button on RViz2</li>
 </ol>
+<h1><a class="anchor" id="autotoc_md2"></a>
+Outdoor maps builder (WIP)</h1>
+<p>This repository contains the <b>Maps builder for outdoor navigation</b></p>
+<p>With the same simulation, you can create a pointcloud map using for example <code>lidar_slam</code>.</p>
+<p>In a new terminal, run the navigation system with:</p>
+<div class="fragment"><div class="line">ros2 run easynav_outdoor_maps_builder outdoor_maps_builder_main  --ros-args \</div>
+<div class="line">--params-file &lt;your_workspace&gt;/src/easynav_outdoor_stack/robots_params/summit_sim_slam.params.yaml</div>
+</div><!-- fragment --><p>Currently, it just publishes a downsampled point cloud in <code>/map_builder/cloud_filtered</code> topic. </p>
 </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>
 </div><!-- contents -->
