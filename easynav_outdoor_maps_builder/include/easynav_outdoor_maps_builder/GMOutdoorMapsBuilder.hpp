@@ -20,8 +20,8 @@
 /// \file
 /// \brief Definition of the GMOutdoorMapsBuilder class for point cloud-based map generation.
 
-#ifndef EASYNAV_OUTDOOR_MAPS_BUILDER__GMOutdoorMapsBuilder_HPP_
-#define EASYNAV_OUTDOOR_MAPS_BUILDER__GMOutdoorMapsBuilder_HPP_
+#ifndef EASYNAV_OUTDOOR_MAPS_BUILDER__GMOUTDOORMAPSBUILDDER_HPP_
+#define EASYNAV_OUTDOOR_MAPS_BUILDER__GMOUTDOORMAPSBUILDDER_HPP_
 
 #include "easynav_outdoor_maps_builder/OutdoorMapsBuilder.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -59,4 +59,4 @@ protected:
 
 } // namespace easynav
 
-#endif // EASYNAV_OUTDOOR_MAPS_BUILDER__GMOutdoorMapsBuilder_HPP_
+#endif // EASYNAV_OUTDOOR_MAPS_BUILDER__GMOUTDOORMAPSBUILDDER_HPP_

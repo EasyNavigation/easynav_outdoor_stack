@@ -45,7 +45,6 @@ GMOutdoorMapsBuilder::GMOutdoorMapsBuilder(const rclcpp::NodeOptions & options)
 OutdoorMapsBuilder::CallbackReturnT
 GMOutdoorMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
 {
-
   (void)state;
 
   pub_->on_activate();
@@ -67,7 +66,7 @@ void GMOutdoorMapsBuilder::cycle()
 {
   if (pub_->get_subscription_count() > 0) {
     auto downsampled = PerceptionsOpsView(perceptions_).downsample(downsample_resolution_);
-    auto downsampled_points = downsampled.as_points(0);
+    auto downsampled_points = downsampled.as_points();
 
     if (downsampled_points.empty()) {
       return;
@@ -100,15 +99,17 @@ void GMOutdoorMapsBuilder::cycle()
     map["elevation"].setConstant(0.0); //Initialize elevations of all cells to zero
 
     //Set elevation
-    for (const auto& pt : downsampled_points.points) {
+    for (const auto & pt : downsampled_points.points) {
         grid_map::Position pos(pt.x, pt.y);
         grid_map::Index index;
         if (map.getIndex(pos, index)) {
             float& cell = map.at("elevation", index);
-            if (std::isnan(cell)) 
+            if (std::isnan(cell)) {
                 cell = pt.z;
-            else 
-                cell = std::max(cell, pt.z);
+            }
+            else { 
+                cell = (cell + pt.z) / 2.0;
+            }
         }
     }
 
