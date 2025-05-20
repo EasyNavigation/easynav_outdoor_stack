@@ -73,13 +73,15 @@ OutdoorMapsBuilderNode::on_configure(const rclcpp_lifecycle::State & state)
 
 
   std::vector<std::string> map_types;
+
   get_parameter("map_types", map_types);
 
   for (const auto & map_type : map_types) {
     if (map_type == "pcl") {
-      builders_.push_back(std::make_unique<PointcloudMapsBuilder>(this));
+        RCLCPP_INFO(this->get_logger(), "Adding map builder type: '%s'", map_type.c_str());
+        builders_.push_back(std::make_unique<PointcloudMapsBuilder>(this));
     } else {
-      RCLCPP_WARN(get_logger(), "Unknown map type: '%s'", map_type.c_str());
+      RCLCPP_WARN(this->get_logger(), "Unknown map type: '%s'", map_type.c_str());
     }
   }
 
