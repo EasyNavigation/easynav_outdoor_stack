@@ -79,10 +79,10 @@ void GMOutdoorMapsBuilder::cycle()
     //Get Geometry from PCL Cloud
     float min_x = std::numeric_limits<float>::max(), max_x = std::numeric_limits<float>::min();
     float min_y = std::numeric_limits<float>::max(), max_y = std::numeric_limits<float>::min();
-    
-    for (const auto& pt : downsampled_points.points) {
-      if (!std::isfinite(pt.x) || !std::isfinite(pt.y) || !std::isfinite(pt.z)) continue;
-      
+
+    for (const auto & pt : downsampled_points.points) {
+      if (!std::isfinite(pt.x) || !std::isfinite(pt.y) || !std::isfinite(pt.z)) {continue;}
+
       min_x = std::min(min_x, pt.x);
       max_x = std::max(max_x, pt.x);
       min_y = std::min(min_y, pt.y);
@@ -95,22 +95,22 @@ void GMOutdoorMapsBuilder::cycle()
     float center_x = (max_x + min_x) / 2.0;
     float center_y = (max_y + min_y) / 2.0;
 
-    map.setGeometry(grid_map::Length(length_x, length_y), resolution, grid_map::Position(center_x, center_y));
+    map.setGeometry(grid_map::Length(length_x, length_y), resolution,
+        grid_map::Position(center_x, center_y));
     map["elevation"].setConstant(0.0); //Initialize elevations of all cells to zero
 
     //Set elevation
     for (const auto & pt : downsampled_points.points) {
-        grid_map::Position pos(pt.x, pt.y);
-        grid_map::Index index;
-        if (map.getIndex(pos, index)) {
-            float& cell = map.at("elevation", index);
-            if (std::isnan(cell)) {
-                cell = pt.z;
-            }
-            else { 
-                cell = (cell + pt.z) / 2.0;
-            }
+      grid_map::Position pos(pt.x, pt.y);
+      grid_map::Index index;
+      if (map.getIndex(pos, index)) {
+        float & cell = map.at("elevation", index);
+        if (std::isnan(cell)) {
+          cell = pt.z;
+        } else {
+          cell = (cell + pt.z) / 2.0;
         }
+      }
     }
 
     auto msg = grid_map::GridMapRosConverter::toMessage(map);
