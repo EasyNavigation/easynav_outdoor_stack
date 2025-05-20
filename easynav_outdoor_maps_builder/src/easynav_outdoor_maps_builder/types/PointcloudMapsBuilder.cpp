@@ -46,7 +46,7 @@ PointcloudMapsBuilder::PointcloudMapsBuilder(rclcpp_lifecycle::LifecycleNode * n
     node_->declare_parameter("perception_default_frame", "map");
   }
   pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(
-        "/map_builder/cloud_filtered", rclcpp::QoS(1).transient_local().reliable());
+        "map_builder/cloud_filtered", rclcpp::QoS(1).transient_local().reliable());
 }
 
 
@@ -98,7 +98,7 @@ void PointcloudMapsBuilder::cycle()
   if (pub_->get_subscription_count() > 0) {
 
     auto downsampled = PerceptionsOpsView(perceptions_).downsample(downsample_resolution_);
-    auto downsampled_points = downsampled.as_points(0);
+    auto downsampled_points = downsampled.as_points();
 
     if (downsampled_points.empty()) {
       return;

@@ -31,8 +31,8 @@ int main(int argc, char **argv)
   rclcpp::init(argc, argv);
 
   auto node = std::make_shared<easynav::OutdoorMapsBuilderNode>(rclcpp::NodeOptions());
-  
-    rclcpp::executors::SingleThreadedExecutor exec;
+
+  rclcpp::executors::SingleThreadedExecutor exec;
   exec.add_node(node->get_node_base_interface());
 
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
