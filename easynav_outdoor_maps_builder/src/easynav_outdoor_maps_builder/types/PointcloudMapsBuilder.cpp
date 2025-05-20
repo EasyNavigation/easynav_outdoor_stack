@@ -18,7 +18,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /// \file
-/// \brief Implementation of the PCOutdoorMapsBuilder class.
+/// \brief Implementation of the PointcloudMapsBuilder class.
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/macros.hpp"
@@ -27,21 +27,45 @@
 #include "lifecycle_msgs/msg/transition.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 
-#include "easynav_outdoor_maps_builder/PCOutdoorMapsBuilder.hpp"
+#include "easynav_outdoor_maps_builder/types/PointcloudMapsBuilder.hpp"
 #include "easynav_common/types/Perceptions.hpp"
 
 namespace easynav
 {
 
-PCOutdoorMapsBuilder::PCOutdoorMapsBuilder(const rclcpp::NodeOptions & options)
-: OutdoorMapsBuilder(options)
+PointcloudMapsBuilder::PointcloudMapsBuilder(rclcpp_lifecycle::LifecycleNode * node)
+: MapsBuilder(node)
 {
-  pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(
+
+
+  if (!node_->has_parameter("downsample_resolution")) {
+    node_->declare_parameter("downsample_resolution", 1.0);
+  }
+
+  if (!node_->has_parameter("perception_default_frame")) {
+    node_->declare_parameter("perception_default_frame", "map");
+  }
+  pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(
         "/map_builder/cloud_filtered", rclcpp::QoS(1).transient_local().reliable());
 }
 
-OutdoorMapsBuilder::CallbackReturnT
-PCOutdoorMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
+
+using CallbackReturnT = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
+MapsBuilder::CallbackReturnT
+PointcloudMapsBuilder::on_configure(const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+
+
+  node_->get_parameter("downsample_resolution", downsample_resolution_);
+  node_->get_parameter("perception_default_frame", perception_default_frame_);
+
+  return CallbackReturnT::SUCCESS;
+}
+
+MapsBuilder::CallbackReturnT
+PointcloudMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
 {
 
   (void)state;
@@ -51,8 +75,8 @@ PCOutdoorMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
   return CallbackReturnT::SUCCESS;
 }
 
-OutdoorMapsBuilder::CallbackReturnT
-PCOutdoorMapsBuilder::on_deactivate(const rclcpp_lifecycle::State & state)
+MapsBuilder::CallbackReturnT
+PointcloudMapsBuilder::on_deactivate(const rclcpp_lifecycle::State & state)
 {
   (void)state;
 
@@ -61,7 +85,15 @@ PCOutdoorMapsBuilder::on_deactivate(const rclcpp_lifecycle::State & state)
   return CallbackReturnT::SUCCESS;
 }
 
-void PCOutdoorMapsBuilder::cycle()
+MapsBuilder::CallbackReturnT
+PointcloudMapsBuilder::on_cleanup(const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+  pub_.reset();
+  return CallbackReturnT::SUCCESS;
+}
+
+void PointcloudMapsBuilder::cycle()
 {
   if (pub_->get_subscription_count() > 0) {
 

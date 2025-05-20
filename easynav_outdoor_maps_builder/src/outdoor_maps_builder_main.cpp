@@ -23,22 +23,23 @@
 #include "lifecycle_msgs/msg/transition.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 
-#include "easynav_outdoor_maps_builder/PCOutdoorMapsBuilder.hpp"
+#include "easynav_outdoor_maps_builder/OutdoorMapsBuilderNode.hpp"
+
 
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
 
-  rclcpp::executors::SingleThreadedExecutor exec;
+  auto node = std::make_shared<easynav::OutdoorMapsBuilderNode>(rclcpp::NodeOptions());
 
-  auto node = std::make_shared<easynav::PCOutdoorMapsBuilder>(rclcpp::NodeOptions());
+  rclcpp::executors::SingleThreadedExecutor exec;
   exec.add_node(node->get_node_base_interface());
 
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
   if (node->get_current_state().id() !=
     lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
   {
-    RCLCPP_ERROR(node->get_logger(), "Unable to configure");
+    RCLCPP_ERROR(node->get_logger(), "Failed to configure node");
     rclcpp::shutdown();
     return 1;
   }
@@ -46,7 +47,7 @@ int main(int argc, char **argv)
   if (node->get_current_state().id() !=
     lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE)
   {
-    RCLCPP_ERROR(node->get_logger(), "Unable to activate");
+    RCLCPP_ERROR(node->get_logger(), "Failed to activate node");
     rclcpp::shutdown();
     return 1;
   }
@@ -70,6 +71,8 @@ int main(int argc, char **argv)
 
     rate.sleep();
   }
+
+  // TODO: There is an issue here to cleanly finish https://github.com/ros2/rclcpp/issues/2520
 
   rclcpp::shutdown();
   return 0;

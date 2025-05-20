@@ -31,8 +31,8 @@ include_directories(include)
 
 # Library
 add_library(${PROJECT_NAME} SHARED
-  src/easynav_outdoor_maps_builder/OutdoorMapsBuilder.cpp
-  src/easynav_outdoor_maps_builder/PCOutdoorMapsBuilder.cpp
+  src/easynav_outdoor_maps_builder/OutdoorMapsBuilderNode.cpp
+  src/easynav_outdoor_maps_builder/types/PointcloudMapsBuilder.cpp
 )
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
