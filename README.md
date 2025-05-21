@@ -35,5 +35,4 @@ ros2 run easynav_outdoor_maps_builder outdoor_maps_builder_main  --ros-args \
 
 ```
 
-Currently, it just publishes a downsampled point cloud in `/map_builder/cloud_filtered` topic.
-
+In map types, it is possible to select pcl (pointcloud) and/or gridmap.
