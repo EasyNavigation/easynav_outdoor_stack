@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wip_0',['Outdoor maps builder (WIP)',['../index.html#autotoc_md2',1,'']]]
+  ['vff_20based_20outdoor_20navigation_20system_0',['VFF-based outdoor navigation system',['../index.html#autotoc_md1',1,'']]]
 ];

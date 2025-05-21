@@ -106,6 +106,14 @@ VFF-based outdoor navigation system</h1>
 <h1><a class="anchor" id="autotoc_md2"></a>
 Outdoor maps builder (WIP)</h1>
 <p>This repository contains the <b>Maps builder for outdoor navigation</b></p>
+<h1><a class="anchor" id="autotoc_md3"></a>
+Install</h1>
+<p>Prepare your thirparty repos:</p>
+<div class="fragment"><div class="line">cd &lt;easynav_ws&gt;/src</div>
+<div class="line">vcs import &lt; easynav_outdoor_stack/easynav_outdoor_maps_builder/thirdparty.repos</div>
+</div><!-- fragment --><p>You can now build the package.</p>
+<h1><a class="anchor" id="autotoc_md4"></a>
+Run</h1>
 <p>With the same simulation, you can create a pointcloud map using for example <code>lidar_slam</code>.</p>
 <p>In a new terminal, run the navigation system with:</p>
 <div class="fragment"><div class="line">ros2 run easynav_outdoor_maps_builder outdoor_maps_builder_main  --ros-args \</div>
