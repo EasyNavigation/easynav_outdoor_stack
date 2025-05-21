@@ -34,16 +34,16 @@ namespace easynav
 {
 
 PointcloudMapsBuilder::PointcloudMapsBuilder(
-  rclcpp_lifecycle::LifecycleNode * node,
+  rclcpp_lifecycle::LifecycleNode::SharedPtr node,
   const std::shared_ptr<Perceptions> & shared_perceptions)
 : MapsBuilder(node, shared_perceptions)
 {
-  if (!node_->has_parameter("downsample_resolution")) {
-    node_->declare_parameter("downsample_resolution", 1.0);
+  if (!node_->has_parameter("pcl.downsample_resolution")) {
+    node_->declare_parameter("pcl.downsample_resolution", 1.0);
   }
 
-  if (!node_->has_parameter("perception_default_frame")) {
-    node_->declare_parameter("perception_default_frame", "map");
+  if (!node_->has_parameter("pcl.perception_default_frame")) {
+    node_->declare_parameter("pcl.perception_default_frame", "map");
   }
 
   pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(
@@ -56,8 +56,8 @@ PointcloudMapsBuilder::on_configure(const rclcpp_lifecycle::State & state)
   (void)state;
 
 
-  node_->get_parameter("downsample_resolution", downsample_resolution_);
-  node_->get_parameter("perception_default_frame", perception_default_frame_);
+  node_->get_parameter("pcl.downsample_resolution", downsample_resolution_);
+  node_->get_parameter("pcl.perception_default_frame", perception_default_frame_);
 
   return CallbackReturnT::SUCCESS;
 }

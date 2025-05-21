@@ -47,7 +47,7 @@ public:
    * @param perceptions Shared pointer to the perceptions data.
    */
   explicit PointcloudMapsBuilder(
-    rclcpp_lifecycle::LifecycleNode *node,
+    rclcpp_lifecycle::LifecycleNode::SharedPtr node,
     const std::shared_ptr<Perceptions> & perceptions);
 
   /**

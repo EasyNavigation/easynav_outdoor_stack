@@ -49,7 +49,7 @@ public:
    * @param shared_perceptions Shared pointer to the perceptions data used for map building.
    */
   explicit GridMapMapsBuilder(
-    rclcpp_lifecycle::LifecycleNode * node,
+    rclcpp_lifecycle::LifecycleNode::SharedPtr node,
     const std::shared_ptr<Perceptions> & shared_perceptions);
 
   /**

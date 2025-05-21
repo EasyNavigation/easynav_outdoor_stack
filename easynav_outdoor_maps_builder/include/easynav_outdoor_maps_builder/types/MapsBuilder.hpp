@@ -51,7 +51,7 @@ public:
    * @param shared_perceptions Shared pointer to the perceptions data used for map construction.
    */
   explicit MapsBuilder(
-    rclcpp_lifecycle::LifecycleNode * node,
+    rclcpp_lifecycle::LifecycleNode::SharedPtr node,
     const std::shared_ptr<Perceptions> & shared_perceptions)
   : node_(node), perceptions_(shared_perceptions) {}
 
@@ -93,7 +93,7 @@ public:
 
 protected:
   /// Pointer to the lifecycle node this builder belongs to.
-  rclcpp_lifecycle::LifecycleNode * node_;
+  rclcpp_lifecycle::LifecycleNode::SharedPtr node_;
 
   /// Shared perceptions data used by this builder.
   std::shared_ptr<Perceptions> perceptions_;
