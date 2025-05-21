@@ -25,7 +25,6 @@
 
 #include "easynav_outdoor_maps_builder/OutdoorMapsBuilderNode.hpp"
 
-
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
@@ -52,7 +51,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  rclcpp::Rate rate(10);
+  rclcpp::Rate rate(100);
 
   while (rclcpp::ok()) {
     exec.spin_some();

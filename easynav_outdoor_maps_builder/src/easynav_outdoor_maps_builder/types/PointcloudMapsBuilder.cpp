@@ -33,11 +33,11 @@
 namespace easynav
 {
 
-PointcloudMapsBuilder::PointcloudMapsBuilder(rclcpp_lifecycle::LifecycleNode * node)
-: MapsBuilder(node)
+PointcloudMapsBuilder::PointcloudMapsBuilder(
+  rclcpp_lifecycle::LifecycleNode * node,
+  const std::shared_ptr<Perceptions> & shared_perceptions)
+: MapsBuilder(node, shared_perceptions)
 {
-
-
   if (!node_->has_parameter("downsample_resolution")) {
     node_->declare_parameter("downsample_resolution", 1.0);
   }
@@ -45,12 +45,10 @@ PointcloudMapsBuilder::PointcloudMapsBuilder(rclcpp_lifecycle::LifecycleNode * n
   if (!node_->has_parameter("perception_default_frame")) {
     node_->declare_parameter("perception_default_frame", "map");
   }
+
   pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(
         "map_builder/cloud_filtered", rclcpp::QoS(1).transient_local().reliable());
 }
-
-
-using CallbackReturnT = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
 MapsBuilder::CallbackReturnT
 PointcloudMapsBuilder::on_configure(const rclcpp_lifecycle::State & state)
@@ -63,6 +61,7 @@ PointcloudMapsBuilder::on_configure(const rclcpp_lifecycle::State & state)
 
   return CallbackReturnT::SUCCESS;
 }
+
 
 MapsBuilder::CallbackReturnT
 PointcloudMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
@@ -96,8 +95,8 @@ PointcloudMapsBuilder::on_cleanup(const rclcpp_lifecycle::State & state)
 void PointcloudMapsBuilder::cycle()
 {
   if (pub_->get_subscription_count() > 0) {
-
-    auto downsampled = PerceptionsOpsView(perceptions_).downsample(downsample_resolution_);
+    auto & shared_perceptions = *perceptions_;
+    auto downsampled = PerceptionsOpsView(shared_perceptions).downsample(downsample_resolution_);
     auto downsampled_points = downsampled.as_points();
 
     if (downsampled_points.empty()) {
@@ -106,15 +105,8 @@ void PointcloudMapsBuilder::cycle()
 
     auto msg = points_to_rosmsg(downsampled_points);
     msg.header.frame_id = perception_default_frame_;
-    msg.header.stamp = perceptions_[0]->stamp;
+    msg.header.stamp = (shared_perceptions)[0]->stamp;
     pub_->publish(msg);
-
-      // mark perceptions as not new after published
-    for (auto & perception : perceptions_) {
-      if (perception->new_data) {
-        perception->new_data = false;
-      }
-    }
   }
 }
 } // namespace easynav

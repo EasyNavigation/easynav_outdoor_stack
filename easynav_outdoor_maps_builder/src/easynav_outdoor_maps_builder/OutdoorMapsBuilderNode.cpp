@@ -16,7 +16,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
-
+/// \file
+/// \brief Implementation of the OutdoorMapsBuilderNode class.
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/macros.hpp"
@@ -28,6 +29,7 @@
 #include "easynav_outdoor_maps_builder/OutdoorMapsBuilderNode.hpp"
 #include "easynav_outdoor_maps_builder/types/MapsBuilder.hpp"
 #include "easynav_outdoor_maps_builder/types/PointcloudMapsBuilder.hpp"
+#include "easynav_outdoor_maps_builder/types/GridMapMapsBuilder.hpp"
 #include "easynav_common/types/Perceptions.hpp"
 
 namespace easynav
@@ -45,7 +47,6 @@ OutdoorMapsBuilderNode::OutdoorMapsBuilderNode(const rclcpp::NodeOptions & optio
   if (!has_parameter("map_types")) {
     declare_parameter("map_types", std::vector<std::string>{});
   }
-
 }
 
 OutdoorMapsBuilderNode::~OutdoorMapsBuilderNode()
@@ -59,7 +60,6 @@ OutdoorMapsBuilderNode::~OutdoorMapsBuilderNode()
   if (get_current_state().id() != lifecycle_msgs::msg::State::PRIMARY_STATE_UNCONFIGURED) {
     trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_UNCONFIGURED_SHUTDOWN);
   }
-
 }
 
 using CallbackReturnT = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
@@ -70,16 +70,18 @@ OutdoorMapsBuilderNode::on_configure(const rclcpp_lifecycle::State & state)
   (void)state;
 
   get_parameter("sensor_topic", sensor_topic_);
-
-
   std::vector<std::string> map_types;
 
   get_parameter("map_types", map_types);
 
+  perceptions_ = std::make_shared<Perceptions>();
   for (const auto & map_type : map_types) {
     if (map_type == "pcl") {
       RCLCPP_INFO(this->get_logger(), "Adding map builder type: '%s'", map_type.c_str());
-      builders_.push_back(std::make_unique<PointcloudMapsBuilder>(this));
+      builders_.push_back(std::make_unique<PointcloudMapsBuilder>(this, perceptions_));
+    } else if (map_type == "gridmap") {
+      RCLCPP_INFO(this->get_logger(), "Adding map builder type: '%s'", map_type.c_str());
+      builders_.push_back(std::make_unique<GridMapMapsBuilder>(this, perceptions_));
     } else {
       RCLCPP_WARN(this->get_logger(), "Unknown map type: '%s'", map_type.c_str());
     }
@@ -95,7 +97,6 @@ OutdoorMapsBuilderNode::on_configure(const rclcpp_lifecycle::State & state)
     }
   }
 
-
   auto perception_entry = std::make_shared<Perception>();
   perception_entry->data.points.clear();
   perception_entry->data.clear();
@@ -104,7 +105,7 @@ OutdoorMapsBuilderNode::on_configure(const rclcpp_lifecycle::State & state)
   perception_entry->valid = false;
   perception_entry->new_data = true;
 
-  perceptions_.push_back(perception_entry);
+  perceptions_->push_back(perception_entry);
 
   perception_entry->subscription = create_typed_subscription<sensor_msgs::msg::PointCloud2>(
         *this, sensor_topic_, perception_entry, cbg_);
@@ -163,7 +164,7 @@ OutdoorMapsBuilderNode::on_cleanup(const rclcpp_lifecycle::State & state)
   }
 
   builders_.clear();
-  perceptions_.clear();
+  perceptions_->clear();
 
   return CallbackReturnT::SUCCESS;
 }
@@ -175,7 +176,12 @@ void OutdoorMapsBuilderNode::cycle()
       builder->cycle();
     }
   }
+    // mark perceptions as not new after processed
+  for (auto & perception : *perceptions_) {
+    if (perception->new_data) {
+      perception->new_data = false;
+    }
+  }
 }
-
 
 } // namespace easynav

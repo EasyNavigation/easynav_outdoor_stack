@@ -32,36 +32,89 @@
 namespace easynav
 {
 
+/**
+ * @class OutdoorMapsBuilderNode
+ * @brief Lifecycle node that manages multiple MapsBuilder instances for outdoor map construction.
+ *
+ * This node subscribes to sensor data (e.g., point clouds) and manages a set of
+ * MapsBuilder objects which process perceptions and publish map representations.
+ * It supports ROS2 lifecycle management with proper state transitions.
+ */
 class OutdoorMapsBuilderNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
   RCLCPP_SMART_PTR_DEFINITIONS(OutdoorMapsBuilderNode)
+
   using CallbackReturnT = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
+  /**
+   * @brief Constructor
+   * @param options NodeOptions passed to the underlying lifecycle node.
+   */
   explicit OutdoorMapsBuilderNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
+
+  /// Destructor
   ~OutdoorMapsBuilderNode();
 
-
+  /**
+   * @brief Lifecycle configure callback
+   * @param state Current lifecycle state.
+   * @return SUCCESS or FAILURE
+   */
   CallbackReturnT on_configure(const rclcpp_lifecycle::State & state) override;
+
+  /**
+   * @brief Lifecycle activate callback
+   * @param state Current lifecycle state.
+   * @return SUCCESS or FAILURE
+   */
   CallbackReturnT on_activate(const rclcpp_lifecycle::State & state) override;
+
+  /**
+   * @brief Lifecycle deactivate callback
+   * @param state Current lifecycle state.
+   * @return SUCCESS or FAILURE
+   */
   CallbackReturnT on_deactivate(const rclcpp_lifecycle::State & state) override;
+
+  /**
+   * @brief Lifecycle cleanup callback
+   * @param state Current lifecycle state.
+   * @return SUCCESS or FAILURE
+   */
   CallbackReturnT on_cleanup(const rclcpp_lifecycle::State & state) override;
 
+  /**
+   * @brief Executes a processing cycle for all registered MapsBuilder instances.
+   *
+   * This function is expected to be called periodically to process perceptions and
+   * update maps accordingly.
+   */
   void cycle();
 
-  const Perceptions & get_perceptions() const {return perceptions_;}
-
-protected:
-  Perceptions perceptions_;
-  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
-  rclcpp::CallbackGroup::SharedPtr cbg_;
+  /**
+   * @brief Accessor for the current perceptions.
+   * @return Reference to the shared perceptions container.
+   */
+  const Perceptions & get_perceptions() const {return *perceptions_;}
 
 private:
+  /// Collection of map builders processing different map modalities.
   std::vector<std::unique_ptr<MapsBuilder>> builders_;
+
+  /// Topic name from which sensor data (point clouds) are subscribed.
   std::string sensor_topic_;
+
+  /// Shared perceptions container holding current sensor data.
+  std::shared_ptr<Perceptions> perceptions_;
+
+  /// Subscription to point cloud sensor data.
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
+
+  /// Callback group for subscription callbacks.
+  rclcpp::CallbackGroup::SharedPtr cbg_;
 };
 
+}  // namespace easynav
 
-} // namespace easynav
-
-#endif // EASYNAV_OUTDOOR_MAPS_BUILDER__OUTDOORMAPSBUILDERNODE_HPP_
+#endif  // EASYNAV_OUTDOOR_MAPS_BUILDER__OUTDOORMAPSBUILDERNODE_HPP_

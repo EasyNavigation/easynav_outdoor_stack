@@ -3,4 +3,4 @@ outdoor_maps_builder_node:
     sensor_topic: "/map"
     downsample_resolution: 2.0
     perception_default_frame: "map"
-    map_types: ["pcl"]
+    map_types: ["pcl", "gridmap"]
