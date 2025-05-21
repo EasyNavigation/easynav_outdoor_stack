@@ -25,6 +25,20 @@ Running the Simulation:
 
 This repository contains the **Maps builder for outdoor navigation**
 
+# Install
+
+Prepare your thirparty repos:
+
+```
+cd <ros2-workspace>/easynav_ws/src
+vcs import < easynav_outdoor_stack/easynav_outdoor_maps_builder/thirdparty.repos
+
+```
+
+You can now build the package.
+
+# Run
+
 With the same simulation, you can create a pointcloud map using for example `lidar_slam`. 
 
 In a new terminal, run the navigation system with:
