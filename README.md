@@ -32,7 +32,6 @@ Prepare your thirparty repos:
 ```
 cd <ros2-workspace>/easynav_ws/src
 vcs import < easynav_outdoor_stack/easynav_outdoor_maps_builder/thirdparty.repos
-
 ```
 
 You can now build the package.
@@ -46,7 +45,6 @@ In a new terminal, run the navigation system with:
 ```
 ros2 run easynav_outdoor_maps_builder outdoor_maps_builder_main  --ros-args \
 --params-file <your_workspace>/src/easynav_outdoor_stack/robots_params/summit_sim_slam.params.yaml
-
 ```
 
 Currently, it just publishes a downsampled point cloud in `/map_builder/cloud_filtered` topic.
