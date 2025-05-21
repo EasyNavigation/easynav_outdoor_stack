@@ -17,6 +17,8 @@ find_package(sensor_msgs REQUIRED)
 find_package(easynav_common REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(grid_map_ros REQUIRED)
+find_package(grid_map_msgs REQUIRED)
 
 set(dependencies
   rclcpp
@@ -25,14 +27,17 @@ set(dependencies
   std_msgs
   geometry_msgs
   easynav_common
+  grid_map_ros
+  grid_map_msgs
 )
 
 include_directories(include)
 
 # Library
 add_library(${PROJECT_NAME} SHARED
-  src/easynav_outdoor_maps_builder/OutdoorMapsBuilderNode.cpp
+src/easynav_outdoor_maps_builder/OutdoorMapsBuilderNode.cpp
   src/easynav_outdoor_maps_builder/types/PointcloudMapsBuilder.cpp
+    src/easynav_outdoor_maps_builder/types/GridMapOutdoorMapsBuilder.cpp
 )
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
