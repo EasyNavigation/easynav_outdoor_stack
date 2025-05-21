@@ -30,7 +30,7 @@ This repository contains the **Maps builder for outdoor navigation**
 Prepare your thirparty repos:
 
 ```
-cd <ros2-workspace>/easynav_ws/src
+cd <easynav_ws>/src
 vcs import < easynav_outdoor_stack/easynav_outdoor_maps_builder/thirdparty.repos
 ```
 
