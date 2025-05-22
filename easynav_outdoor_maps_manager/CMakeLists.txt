@@ -28,7 +28,6 @@ set(dependencies
   nav_msgs
   geometry_msgs
   ament_index_cpp
-  easynav_outdoor_common
   std_srvs
   yaets
 )
