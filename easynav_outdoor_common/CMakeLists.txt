@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(easynav_outdoor_maps_manager)
+project(easynav_outdoor_common)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -16,9 +16,6 @@ find_package(easynav_common REQUIRED)
 find_package(easynav_core REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(ament_index_cpp REQUIRED)
-find_package(easynav_outdoor_common REQUIRED)
-find_package(std_srvs REQUIRED)
-find_package(yaets REQUIRED)
 
 set(dependencies
   rclcpp
@@ -29,15 +26,12 @@ set(dependencies
   nav_msgs
   geometry_msgs
   ament_index_cpp
-  easynav_outdoor_common
-  std_srvs
-  yaets
 )
 
 include_directories(include)
 
 add_library(${PROJECT_NAME} SHARED
-  src/easynav_outdoor_maps_manager/PCDOutdoorMapsManager.cpp
+  src/easynav_outdoor_common/PCD.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -72,8 +66,5 @@ ament_export_libraries(${PROJECT_NAME})
 ament_export_targets(
   export_${PROJECT_NAME}
 )
-# Register the planning plugins
-pluginlib_export_plugin_description_file(easynav_core easynav_outdoor_maps_manager_plugins.xml)
 ament_export_dependencies(${dependencies})
 ament_package()
-

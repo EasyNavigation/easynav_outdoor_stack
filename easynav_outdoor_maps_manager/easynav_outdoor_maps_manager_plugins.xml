@@ -1,0 +1,9 @@
+<class_libraries>
+  <library path="easynav_outdoor_maps_manager">
+    <class name="easynav_outdoor_maps_manager/PCDOutdoorMapsManager"  type="easynav::PCDOutdoorMapsManager" base_class_type="easynav::MapsManagerBase">
+      <description>
+      An outdoor implementation for the Maps Manager.
+      </description>
+    </class>
+  </library>
+</class_libraries>

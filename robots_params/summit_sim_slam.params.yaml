@@ -10,3 +10,11 @@ outdoor_maps_builder_node:
     gridmap:
       downsample_resolution: 1.0
       perception_default_frame: "map"
+
+maps_manager_node:
+  ros__parameters:
+    maps_manager_plugins:
+      - PCD
+    PCD:
+      package: "easynav_outdoor_maps_manager"
+      map_path_file: "maps/PCD.pcd"
