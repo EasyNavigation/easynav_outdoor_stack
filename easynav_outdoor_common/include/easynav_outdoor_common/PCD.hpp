@@ -20,8 +20,8 @@
 /// \file
 /// \brief Declaration of the PCD type.
 
-#ifndef EASYNAV_PLANNER__PCD_HPP_
-#define EASYNAV_PLANNER__PCD_HPP_
+#ifndef EASYNAV_OUTDOOR_MAPS_MANAGER__PCD_HPP_
+#define EASYNAV_OUTDOOR_MAPS_MANAGER__PCD_HPP_
 
 #include <vector>
 #include <stdexcept>
@@ -137,4 +137,4 @@ private:
 
 }  // namespace easynav
 
-#endif  // EASYNAV_PLANNER__PCD_HPP_
+#endif  // EASYNAV_OUTDOOR_MAPS_MANAGER__PCD_HPP_
