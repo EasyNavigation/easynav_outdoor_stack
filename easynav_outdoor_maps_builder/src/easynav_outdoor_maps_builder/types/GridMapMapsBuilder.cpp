@@ -18,7 +18,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /// \file
-/// \brief Implementation of the GMOutdoorMapsBuilder class.
+/// \brief Implementation of the GridMapMapsBuilder class.
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/macros.hpp"
@@ -27,23 +27,45 @@
 #include "lifecycle_msgs/msg/transition.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 
-#include "easynav_outdoor_maps_builder/GMOutdoorMapsBuilder.hpp"
+#include "easynav_outdoor_maps_builder/types/GridMapMapsBuilder.hpp"
 #include "easynav_common/types/Perceptions.hpp"
 
 #include <grid_map_ros/grid_map_ros.hpp>
 
 namespace easynav
 {
-
-GMOutdoorMapsBuilder::GMOutdoorMapsBuilder(const rclcpp::NodeOptions & options)
-: OutdoorMapsBuilder(options)
+GridMapMapsBuilder::GridMapMapsBuilder(
+  rclcpp_lifecycle::LifecycleNode::SharedPtr node,
+  const std::shared_ptr<Perceptions> & shared_perceptions)
+: MapsBuilder(node, shared_perceptions)
 {
-  pub_ = this->create_publisher<grid_map_msgs::msg::GridMap>(
-        "/map_builder/grid_map", rclcpp::QoS(1).transient_local().reliable());
+
+  if (!node_->has_parameter("gridmap.downsample_resolution")) {
+    node_->declare_parameter("gridmap.downsample_resolution", 1.0);
+  }
+
+  if (!node_->has_parameter("gridmap.perception_default_frame")) {
+    node_->declare_parameter("gridmap.perception_default_frame", "map");
+  }
+
+  pub_ = node->create_publisher<grid_map_msgs::msg::GridMap>(
+        "map_builder/grid_map", rclcpp::QoS(1).transient_local().reliable());
 }
 
-OutdoorMapsBuilder::CallbackReturnT
-GMOutdoorMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
+MapsBuilder::CallbackReturnT
+GridMapMapsBuilder::on_configure(const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+
+
+  node_->get_parameter("gridmap.downsample_resolution", downsample_resolution_);
+  node_->get_parameter("gridmap.perception_default_frame", perception_default_frame_);
+
+  return CallbackReturnT::SUCCESS;
+}
+
+MapsBuilder::CallbackReturnT
+GridMapMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
 {
   (void)state;
 
@@ -52,8 +74,9 @@ GMOutdoorMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
   return CallbackReturnT::SUCCESS;
 }
 
-OutdoorMapsBuilder::CallbackReturnT
-GMOutdoorMapsBuilder::on_deactivate(const rclcpp_lifecycle::State & state)
+
+MapsBuilder::CallbackReturnT
+GridMapMapsBuilder::on_deactivate(const rclcpp_lifecycle::State & state)
 {
   (void)state;
 
@@ -62,10 +85,19 @@ GMOutdoorMapsBuilder::on_deactivate(const rclcpp_lifecycle::State & state)
   return CallbackReturnT::SUCCESS;
 }
 
-void GMOutdoorMapsBuilder::cycle()
+MapsBuilder::CallbackReturnT
+GridMapMapsBuilder::on_cleanup(const rclcpp_lifecycle::State & state)
+{
+  (void)state;
+  pub_.reset();
+  return CallbackReturnT::SUCCESS;
+}
+
+void GridMapMapsBuilder::cycle()
 {
   if (pub_->get_subscription_count() > 0) {
-    auto downsampled = PerceptionsOpsView(perceptions_).downsample(downsample_resolution_);
+    auto & shared_perceptions = *perceptions_;
+    auto downsampled = PerceptionsOpsView(shared_perceptions).downsample(downsample_resolution_);
     auto downsampled_points = downsampled.as_points();
 
     if (downsampled_points.empty()) {
@@ -74,14 +106,16 @@ void GMOutdoorMapsBuilder::cycle()
 
     grid_map::GridMap map({"elevation"});
     map.setFrameId(perception_default_frame_);
-    map.setTimestamp(perceptions_[0]->stamp.nanoseconds());
+    map.setTimestamp(shared_perceptions[0]->stamp.nanoseconds());
 
-    //Get Geometry from PCL Cloud
+      // Get Geometry from PCL Cloud
     float min_x = std::numeric_limits<float>::max(), max_x = std::numeric_limits<float>::min();
     float min_y = std::numeric_limits<float>::max(), max_y = std::numeric_limits<float>::min();
 
     for (const auto & pt : downsampled_points.points) {
-      if (!std::isfinite(pt.x) || !std::isfinite(pt.y) || !std::isfinite(pt.z)) {continue;}
+      if (!std::isfinite(pt.x) || !std::isfinite(pt.y) || !std::isfinite(pt.z)) {
+        continue;
+      }
 
       min_x = std::min(min_x, pt.x);
       max_x = std::max(max_x, pt.x);
@@ -96,10 +130,10 @@ void GMOutdoorMapsBuilder::cycle()
     float center_y = (max_y + min_y) / 2.0;
 
     map.setGeometry(grid_map::Length(length_x, length_y), resolution,
-        grid_map::Position(center_x, center_y));
-    map["elevation"].setConstant(0.0); //Initialize elevations of all cells to zero
+                      grid_map::Position(center_x, center_y));
+    map["elevation"].setConstant(0.0);   // Initialize elevations of all cells to zero
 
-    //Set elevation
+      // Set elevation
     for (const auto & pt : downsampled_points.points) {
       grid_map::Position pos(pt.x, pt.y);
       grid_map::Index index;
@@ -115,13 +149,6 @@ void GMOutdoorMapsBuilder::cycle()
 
     auto msg = grid_map::GridMapRosConverter::toMessage(map);
     pub_->publish(std::move(msg));
-
-    // mark perceptions as not new after published
-    for (auto & perception : perceptions_) {
-      if (perception->new_data) {
-        perception->new_data = false;
-      }
-    }
   }
 }
 } // namespace easynav

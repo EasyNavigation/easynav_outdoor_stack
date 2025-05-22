@@ -47,5 +47,4 @@ ros2 run easynav_outdoor_maps_builder outdoor_maps_builder_main  --ros-args \
 --params-file <your_workspace>/src/easynav_outdoor_stack/robots_params/summit_sim_slam.params.yaml
 ```
 
-Currently, it just publishes a downsampled point cloud in `/map_builder/cloud_filtered` topic.
-
+In map types, it is possible to select pcl (pointcloud) and/or gridmap.

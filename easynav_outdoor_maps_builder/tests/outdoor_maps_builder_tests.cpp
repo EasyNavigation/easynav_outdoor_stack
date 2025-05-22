@@ -1,6 +1,6 @@
 // Copyright 2025 Intelligent Robotics Lab
 //
-// This file is part of the project Easy Navigation (EasyNav in short)
+// This file is part of the project Easy Navigation (EasyNav in sh0rt)
 // licensed under the GNU General Public License v3.0.
 // See <http://www.gnu.org/licenses/> for details.
 //
@@ -17,105 +17,40 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <memory>
-#include <gtest/gtest.h>
-
-#include <rclcpp/rclcpp.hpp>
+#include "gtest/gtest.h"
+#include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <sensor_msgs/point_cloud2_iterator.hpp>
+#include "easynav_outdoor_maps_builder/OutdoorMapsBuilderNode.hpp"
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-
-#include "lifecycle_msgs/msg/transition.hpp"
-#include "lifecycle_msgs/msg/state.hpp"
-
-#include "easynav_outdoor_maps_builder/PCOutdoorMapsBuilder.hpp"
-#include "easynav_common/types/Perceptions.hpp"
-
-using namespace easynav;
-
-class TestablePCOutdoorMapsBuilder : public PCOutdoorMapsBuilder
-{
-public:
-  using PCOutdoorMapsBuilder::PCOutdoorMapsBuilder;
-
-  std::vector<std::shared_ptr<Perception>> & get_perceptions() {return perceptions_;}
-
-  using PCOutdoorMapsBuilder::pub_;
-};
-
-class PCOutdoorMapsBuilderTest : public ::testing::Test
+class OutdoorMapsBuilderTest : public ::testing::Test
 {
 protected:
   static void SetUpTestSuite()
   {
-    rclcpp::init(0, nullptr);
+    if (!rclcpp::ok()) {
+      rclcpp::init(0, nullptr);
+    }
   }
 
   static void TearDownTestSuite()
   {
     rclcpp::shutdown();
   }
-
-  void SetUp() override
-  {
-    rclcpp::NodeOptions options;
-    options.append_parameter_override("sensor_topic", "test_points");
-    options.append_parameter_override("downsample_resolution", 6.0);
-    options.append_parameter_override("perception_default_frame", "map");
-
-    builder_ = std::make_shared<TestablePCOutdoorMapsBuilder>(options);
-
-    builder_->pub_ = builder_->create_publisher<sensor_msgs::msg::PointCloud2>("output_topic", 10);
-  }
-
-  void TearDown() override
-  {
-    builder_.reset();
-  }
-
-  std::shared_ptr<TestablePCOutdoorMapsBuilder> builder_;
 };
 
-TEST_F(PCOutdoorMapsBuilderTest, CyclePublishesAndResetsNewDataFlag)
+TEST_F(OutdoorMapsBuilderTest, test_configure_success)
 {
-  auto & perceptions = builder_->get_perceptions();
-  perceptions.clear();
+  auto options = rclcpp::NodeOptions();
 
-  pcl::PointCloud<pcl::PointXYZ> cloud;
-  cloud.width = 1;
-  cloud.height = 1;
-  cloud.points.resize(1);
-  cloud.points[0].x = 0.1f;
-  cloud.points[0].y = 0.2f;
-  cloud.points[0].z = 0.3f;
+  options.append_parameter_override("map_types", std::vector<std::string>{"pcl"});
+  options.append_parameter_override("sensor_topic", "points");
 
-  auto perception = std::make_shared<Perception>();
-  perception->data = cloud;
-  perception->frame_id = "map";
-  perception->stamp = rclcpp::Clock().now();
-  perception->valid = true;
-  perception->new_data = true;
-  perceptions.push_back(perception);
+  auto node = std::make_shared<easynav::OutdoorMapsBuilderNode>(options);
 
-  builder_->configure();
-  builder_->pub_ = builder_->create_publisher<sensor_msgs::msg::PointCloud2>(
-      "/map_builder/cloud_filtered", rclcpp::QoS(10));
-  builder_->activate();
-  auto dummy = builder_->create_subscription<sensor_msgs::msg::PointCloud2>(
-      "/map_builder/cloud_filtered", 10,
-    [](sensor_msgs::msg::PointCloud2::SharedPtr) {});
+  auto state = rclcpp_lifecycle::State();
+  auto result = node->on_configure(state);
 
-  builder_->cycle();
-
-  EXPECT_FALSE(perception->new_data);
-}
-
-int main(int argc, char **argv)
-{
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  EXPECT_EQ(result,
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS);
 }
