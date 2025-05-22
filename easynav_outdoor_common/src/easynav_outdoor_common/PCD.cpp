@@ -49,11 +49,11 @@ PCD::initialize(
   std::size_t row_step,
   int initial_value)
 {
-  width_ = width; 
-  height_ = height; 
-  point_step_ = point_step; 
+  width_ = width;
+  height_ = height;
+  point_step_ = point_step;
   row_step_ = row_step;
-  initial_value_ = initial_value; 
+  initial_value_ = initial_value;
   fields_ = get_fields();
   data_.assign(row_step_ * height, initial_value);
 }
@@ -61,11 +61,11 @@ PCD::initialize(
 void
 PCD::deep_copy(const PCD & other)
 {
-  width_ = other.width_; 
-  height_ = other.height_; 
-  point_step_ = other.point_step_; 
+  width_ = other.width_;
+  height_ = other.height_;
+  point_step_ = other.point_step_;
   row_step_ = other.row_step_;
-  initial_value_ = other.initial_value_; 
+  initial_value_ = other.initial_value_;
   fields_ = other.fields_;
   data_ = other.data_;
 }
@@ -93,14 +93,16 @@ PCD::get_fields()
 }
 
 void
-PCD::to_point_cloud(sensor_msgs::msg::PointCloud2 & cloud_msg, pcl::PointCloud<pcl::PointXYZ> & cloud) const
+PCD::to_point_cloud(
+  sensor_msgs::msg::PointCloud2 & cloud_msg,
+  pcl::PointCloud<pcl::PointXYZ> & cloud) const
 {
   cloud_msg.width = static_cast<uint32_t>(width_);
   cloud_msg.height = static_cast<uint32_t>(height_);
   cloud_msg.point_step = static_cast<uint32_t>(point_step_);
   cloud_msg.row_step = static_cast<uint32_t>(row_step_);
 
-  pcl::toROSMsg(cloud, cloud_msg);      
+  pcl::toROSMsg(cloud, cloud_msg);
 }
 
 void
@@ -110,7 +112,7 @@ PCD::to_point_cloud(sensor_msgs::msg::PointCloud2 & cloud_msg) const
   cloud_msg.height = static_cast<uint32_t>(height_);
   cloud_msg.point_step = static_cast<uint32_t>(point_step_);
   cloud_msg.row_step = static_cast<uint32_t>(row_step_);
-  cloud_msg.fields = fields_; 
+  cloud_msg.fields = fields_;
   cloud_msg.data = data_;
 }
 
@@ -122,7 +124,7 @@ PCD::from_point_cloud(const sensor_msgs::msg::PointCloud2 & cloud_msg)
     cloud_msg.height,
     cloud_msg.point_step,
     cloud_msg.row_step,
-    0); 
+    0);
 
   fields_ = cloud_msg.fields;
   data_ = cloud_msg.data;
@@ -160,10 +162,9 @@ PCD::load_from_file(const std::string & path)
 
   pcl::PointCloud<pcl::PointXYZ> cloud;
 
-  if (pcl::io::loadPCDFile<pcl::PointXYZ> (path, cloud) == -1) //* load the file
-  {
+  if (pcl::io::loadPCDFile<pcl::PointXYZ>(path, cloud) == -1) { //* load the file
     std::cerr << " :: Load PCD file failed :: \n";
-    std::cerr << "Couldn't read file in "<< path <<" \n";
+    std::cerr << "Couldn't read file in " << path << " \n";
     return false;
   }
 

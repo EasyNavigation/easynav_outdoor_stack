@@ -69,8 +69,8 @@ public:
    * @param initial_value Value to initialize all cells.
    */
   void initialize(
-      std::size_t width_, std::size_t height_,std::size_t point_step_,  
-      std::size_t row_step_, int initial_value_);
+    std::size_t width_, std::size_t height_, std::size_t point_step_,
+    std::size_t row_step_, int initial_value_);
 
   /**
    * @brief Load map data and metadata from a nav_msgs::msg::OccupancyGrid message.
@@ -97,7 +97,9 @@ public:
    *
    * @param cloud_msg The occupancy grid message to fill or update.
    */
-  void to_point_cloud(sensor_msgs::msg::PointCloud2 & cloud_msg, pcl::PointCloud<pcl::PointXYZ> & cloud) const;
+  void to_point_cloud(
+    sensor_msgs::msg::PointCloud2 & cloud_msg,
+    pcl::PointCloud<pcl::PointXYZ> & cloud) const;
 
   /**
    * @brief Updates a nav_msgs::msg::OccupancyGrid message from the SimpleMap contents.
@@ -119,7 +121,6 @@ public:
    * @return true if the file was read successfully and is valid, false otherwise.
    */
   bool load_from_file(const std::string & path);
-
 
 private:
   std::size_t width_;

@@ -28,7 +28,7 @@ jobs:
       - name: build and test
         uses: ros-tooling/action-ros-ci@0.4.1
         with:
-          package-name: easynav_outdoor_maps_builder easynav_outdoor_maps_manager easynav_vff_controller easynav_gps_localizer
+          package-name: easynav_outdoor_maps_builder easynav_outdoor_maps_manager easynav_vff_controller easynav_gps_localizer easynav_outdoor_common
           target-ros2-distro: rolling
           vcs-repo-file-url: ${GITHUB_WORKSPACE}/.github/thirdparty.repos
           skip-test: true

@@ -73,7 +73,7 @@ PCDOutdoorMapsManager::on_initialize()
     node->get_name() + std::string("/") + plugin_name + map_topic_in,
     rclcpp::QoS(1).transient_local().reliable(),
     [this](sensor_msgs::msg::PointCloud2::UniquePtr msg) {
-      
+
       static_map_->from_point_cloud(*msg);
       dynamic_map_->from_point_cloud(*msg);
 
@@ -151,8 +151,8 @@ PCDOutdoorMapsManager::update(const NavState & nav_state)
     .fuse("map")->filter({NAN, NAN, NAN}, {NAN, NAN, NAN})
     .as_points();
   // auto fused = (PerceptionsOpsView(nav_state.perceptions).fuse("map")).as_points();
-  
-          
+
+
   dynamic_map_->to_point_cloud(dynamic_map_msg_, fused);
 
   dynamic_map_msg_.header.frame_id = "map";
