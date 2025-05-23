@@ -16,6 +16,7 @@ find_package(easynav_common REQUIRED)
 find_package(easynav_core REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(ament_index_cpp REQUIRED)
+find_package(easynav_outdoor_common REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(yaets REQUIRED)
 
@@ -28,6 +29,7 @@ set(dependencies
   nav_msgs
   geometry_msgs
   ament_index_cpp
+  easynav_outdoor_common
   std_srvs
   yaets
 )

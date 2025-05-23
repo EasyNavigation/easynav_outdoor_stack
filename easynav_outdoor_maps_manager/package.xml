@@ -18,7 +18,7 @@
   <depend>nav_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>ament_index_cpp</depend>
-  <depend>easynav_simple_common</depend>
+  <depend>easynav_outdoor_common</depend>
   <depend>std_srvs</depend>
   <depend>yaets</depend>
 
