@@ -1,0 +1,10 @@
+maps_manager_node:
+  ros__parameters:
+    use_sim_time: true
+    map_types:
+      - PCD
+    PCD:
+      plugin: easynav_outdoor_maps_manager/PCDOutdoorMapsManager
+      package: easynav_outdoor_maps_manager
+      map_topic_in: /front_laser_sensor/points 
+      

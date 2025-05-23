@@ -30,6 +30,12 @@
 namespace easynav
 {
 
+using std::placeholders::_1;
+
+PCDOutdoorMapsManager::~PCDOutdoorMapsManager()
+{
+}
+
 std::expected<void, std::string>
 PCDOutdoorMapsManager::on_initialize()
 {
@@ -48,6 +54,11 @@ PCDOutdoorMapsManager::on_initialize()
   node->get_parameter(plugin_name + ".map_path_file", map_path_file);
   node->get_parameter(plugin_name + ".map_topic_in", map_topic_in);
 
+  std::cerr << ":: PARAMETERS :: " << package_name <<"\n";
+  std::cerr << "Package name: " << package_name <<"\n";
+  std::cerr << "Map path file: " << map_path_file <<"\n";
+  std::cerr << "map topic in name: " << map_topic_in <<"\n";
+
   if (package_name != "" && map_path_file != "") {
     std::string pkgpath;
     try {
@@ -62,6 +73,13 @@ PCDOutdoorMapsManager::on_initialize()
     }
   }
 
+  std::string topic_name;
+  if (map_topic_in != ""){
+    topic_name = node->get_name() + std::string("/") + plugin_name + "/topic_in";
+  } else {
+    topic_name = "/map_builder/cloud_filtered";
+  }
+
   static_map_pub_ = node->create_publisher<sensor_msgs::msg::PointCloud2>(
     node->get_name() + std::string("/") + plugin_name + "/static_map",
     rclcpp::QoS(1).transient_local().reliable());
@@ -70,8 +88,7 @@ PCDOutdoorMapsManager::on_initialize()
     node->get_name() + std::string("/") + plugin_name + "/dynamic_map", 100);
 
   incoming_map_sub_ = node->create_subscription<sensor_msgs::msg::PointCloud2>(
-    node->get_name() + std::string("/") + plugin_name + map_topic_in,
-    rclcpp::QoS(1).transient_local().reliable(),
+    topic_name, rclcpp::QoS(1).transient_local().reliable(),
     [this](sensor_msgs::msg::PointCloud2::UniquePtr msg) {
 
       static_map_->from_point_cloud(*msg);
@@ -146,7 +163,9 @@ PCDOutdoorMapsManager::update(const NavState & nav_state)
 {
   dynamic_map_->deep_copy(*static_map_);
 
-  std::cerr << "3*" << std::endl;
+  RCLCPP_INFO(get_node()->get_logger(),
+      "PCDOutdoorMapsManager::update: Update cycle");
+
   auto fused = PerceptionsOpsView(nav_state.perceptions)
     .fuse("map")->filter({NAN, NAN, NAN}, {NAN, NAN, NAN})
     .as_points();

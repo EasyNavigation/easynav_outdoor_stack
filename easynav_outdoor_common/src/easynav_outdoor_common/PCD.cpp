@@ -97,10 +97,13 @@ PCD::to_point_cloud(
   sensor_msgs::msg::PointCloud2 & cloud_msg,
   pcl::PointCloud<pcl::PointXYZ> & cloud) const
 {
+  std::cerr << "Getting Data from msg and cloud\n";
   cloud_msg.width = static_cast<uint32_t>(width_);
   cloud_msg.height = static_cast<uint32_t>(height_);
   cloud_msg.point_step = static_cast<uint32_t>(point_step_);
   cloud_msg.row_step = static_cast<uint32_t>(row_step_);
+  cloud_msg.fields = fields_;
+  cloud_msg.data = data_;
 
   pcl::toROSMsg(cloud, cloud_msg);
 }
@@ -108,6 +111,7 @@ PCD::to_point_cloud(
 void
 PCD::to_point_cloud(sensor_msgs::msg::PointCloud2 & cloud_msg) const
 {
+  std::cerr << "Getting Data from msg\n";
   cloud_msg.width = static_cast<uint32_t>(width_);
   cloud_msg.height = static_cast<uint32_t>(height_);
   cloud_msg.point_step = static_cast<uint32_t>(point_step_);
