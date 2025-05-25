@@ -66,11 +66,10 @@ public:
    * @param resolution Size of each cell in meters.
    * @param origin_x Metric X coordinate corresponding to cell (0,0).
    * @param origin_y Metric Y coordinate corresponding to cell (0,0).
-   * @param initial_value Value to initialize all cells.
    */
   void initialize(
     std::size_t width_, std::size_t height_, std::size_t point_step_,
-    std::size_t row_step_, int initial_value_);
+    std::size_t row_step_);
 
   /**
    * @brief Load map data and metadata from a nav_msgs::msg::OccupancyGrid message.
@@ -97,7 +96,7 @@ public:
    *
    * @param cloud_msg The occupancy grid message to fill or update.
    */
-  void to_point_cloud(
+  void refresh(
     sensor_msgs::msg::PointCloud2 & cloud_msg,
     pcl::PointCloud<pcl::PointXYZ> & cloud) const;
 
@@ -122,16 +121,17 @@ public:
    */
   bool load_from_file(const std::string & path);
 
+  void show(void) const;
+
 private:
   std::size_t width_;
   std::size_t height_;
   std::size_t point_step_;
   std::size_t row_step_;
-  int initial_value_;
   std::vector<sensor_msgs::msg::PointField> fields_;
   std::vector<uint8_t> data_;
 
-  std::vector<sensor_msgs::msg::PointField> get_fields(void);
+  std::vector<sensor_msgs::msg::PointField> get_fields(void) const;
   void get_cloud(pcl::PointCloud<pcl::PointXYZ> & cloud) const;
 };
 

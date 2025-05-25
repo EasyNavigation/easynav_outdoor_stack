@@ -54,10 +54,10 @@ PCDOutdoorMapsManager::on_initialize()
   node->get_parameter(plugin_name + ".map_path_file", map_path_file);
   node->get_parameter(plugin_name + ".map_topic_in", map_topic_in);
 
-  std::cerr << ":: PARAMETERS :: " << package_name <<"\n";
-  std::cerr << "Package name: " << package_name <<"\n";
-  std::cerr << "Map path file: " << map_path_file <<"\n";
-  std::cerr << "map topic in name: " << map_topic_in <<"\n";
+  std::cerr << ":: PARAMETERS :: \n";
+  std::cerr << "Package name: " << package_name << "\n";
+  std::cerr << "Map path file: " << map_path_file << "\n";
+  std::cerr << "map topic in name: " << map_topic_in << "\n";
 
   if (package_name != "" && map_path_file != "") {
     std::string pkgpath;
@@ -74,10 +74,14 @@ PCDOutdoorMapsManager::on_initialize()
   }
 
   std::string topic_name;
-  if (map_topic_in != ""){
-    topic_name = node->get_name() + std::string("/") + plugin_name + "/topic_in";
+  if (map_topic_in != "") {
+    topic_name = map_topic_in;
   } else {
-    topic_name = "/map_builder/cloud_filtered";
+    topic_name = node->get_name() + std::string("/") + plugin_name + "/topic_in";
+  }
+
+  if (map_path_file == "") {
+    map_path_file = "map.pcd";
   }
 
   static_map_pub_ = node->create_publisher<sensor_msgs::msg::PointCloud2>(
@@ -91,6 +95,8 @@ PCDOutdoorMapsManager::on_initialize()
     topic_name, rclcpp::QoS(1).transient_local().reliable(),
     [this](sensor_msgs::msg::PointCloud2::UniquePtr msg) {
 
+      RCLCPP_INFO(get_node()->get_logger(),
+      "PCDOutdoorMapsManager::topic_callback: reading map");
       static_map_->from_point_cloud(*msg);
       dynamic_map_->from_point_cloud(*msg);
 
@@ -163,16 +169,13 @@ PCDOutdoorMapsManager::update(const NavState & nav_state)
 {
   dynamic_map_->deep_copy(*static_map_);
 
-  RCLCPP_INFO(get_node()->get_logger(),
-      "PCDOutdoorMapsManager::update: Update cycle");
+  // RCLCPP_INFO(get_node()->get_logger(),
+  //     "PCDOutdoorMapsManager::update: Update cycle");
 
   auto fused = PerceptionsOpsView(nav_state.perceptions)
-    .fuse("map")->filter({NAN, NAN, NAN}, {NAN, NAN, NAN})
-    .as_points();
-  // auto fused = (PerceptionsOpsView(nav_state.perceptions).fuse("map")).as_points();
+    .fuse("map")->as_points();
 
-
-  dynamic_map_->to_point_cloud(dynamic_map_msg_, fused);
+  dynamic_map_->refresh(dynamic_map_msg_, fused);
 
   dynamic_map_msg_.header.frame_id = "map";
   dynamic_map_msg_.header.stamp = get_node()->now();

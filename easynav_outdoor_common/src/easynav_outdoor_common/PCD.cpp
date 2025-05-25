@@ -27,6 +27,7 @@
 
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include <pcl/io/pcd_io.h>
+#include <pcl/common/io.h>
 #include <pcl/point_types.h>
 #include "pcl_conversions/pcl_conversions.h"
 #include "pcl/point_types_conversion.h"
@@ -38,7 +39,7 @@ namespace easynav
 {
 
 PCD::PCD()
-: width_(0), height_(0), point_step_(1), row_step_(1), initial_value_(0), data_()
+: width_(0), height_(0), point_step_(1), row_step_(1), data_()
 {}
 
 void
@@ -46,16 +47,14 @@ PCD::initialize(
   std::size_t width,
   std::size_t height,
   std::size_t point_step,
-  std::size_t row_step,
-  int initial_value)
+  std::size_t row_step)
 {
   width_ = width;
   height_ = height;
   point_step_ = point_step;
   row_step_ = row_step;
-  initial_value_ = initial_value;
   fields_ = get_fields();
-  data_.assign(row_step_ * height, initial_value);
+  data_.assign(row_step_ * height, 0);
 }
 
 void
@@ -65,13 +64,12 @@ PCD::deep_copy(const PCD & other)
   height_ = other.height_;
   point_step_ = other.point_step_;
   row_step_ = other.row_step_;
-  initial_value_ = other.initial_value_;
   fields_ = other.fields_;
   data_ = other.data_;
 }
 
 std::vector<sensor_msgs::msg::PointField>
-PCD::get_fields()
+PCD::get_fields() const
 {
   std::vector<sensor_msgs::msg::PointField> fields;
   sensor_msgs::msg::PointField field;
@@ -93,19 +91,27 @@ PCD::get_fields()
 }
 
 void
-PCD::to_point_cloud(
+PCD::refresh(
   sensor_msgs::msg::PointCloud2 & cloud_msg,
   pcl::PointCloud<pcl::PointXYZ> & cloud) const
 {
-  std::cerr << "Getting Data from msg and cloud\n";
-  cloud_msg.width = static_cast<uint32_t>(width_);
-  cloud_msg.height = static_cast<uint32_t>(height_);
-  cloud_msg.point_step = static_cast<uint32_t>(point_step_);
-  cloud_msg.row_step = static_cast<uint32_t>(row_step_);
-  cloud_msg.fields = fields_;
-  cloud_msg.data = data_;
+  pcl::PCLPointCloud2 cloud1_in, cloud2_in, cloud_out;
+  std::vector<pcl::PCLPointField> fields;
+  pcl_conversions::toPCL(fields_, fields);
+  cloud1_in.width = static_cast<uint32_t>(width_);
+  cloud1_in.height = static_cast<uint32_t>(height_);
+  cloud1_in.point_step = static_cast<uint32_t>(point_step_);
+  cloud1_in.row_step = static_cast<uint32_t>(row_step_);
+  cloud1_in.fields = fields;
+  cloud1_in.data = data_;
 
-  pcl::toROSMsg(cloud, cloud_msg);
+  pcl::toPCLPointCloud2(cloud, cloud2_in);
+
+  pcl::concatenate(cloud1_in, cloud2_in, cloud_out);
+
+  pcl::PointCloud<pcl::PointXYZ> out;
+  pcl::fromPCLPointCloud2(cloud_out, out);
+  pcl::toROSMsg(out, cloud_msg);
 }
 
 void
@@ -127,8 +133,7 @@ PCD::from_point_cloud(const sensor_msgs::msg::PointCloud2 & cloud_msg)
     cloud_msg.width,
     cloud_msg.height,
     cloud_msg.point_step,
-    cloud_msg.row_step,
-    0);
+    cloud_msg.row_step);
 
   fields_ = cloud_msg.fields;
   data_ = cloud_msg.data;
@@ -177,6 +182,18 @@ PCD::load_from_file(const std::string & path)
   from_point_cloud(cloud_msg);
 
   return true;
+}
+
+void
+PCD::show(void) const
+{
+  std::cerr << ":: PCD values :: \n";
+  std::cerr << "width: " << width_ << "\n";
+  std::cerr << "height: " << height_ << "\n";
+  std::cerr << "point step: " << point_step_ << "\n";
+  std::cerr << "row step: " << row_step_ << "\n";
+  std::cerr << "fields lenght: " << fields_.size() << "\n";
+  std::cerr << "data lenght: " << data_.size() << "\n";
 }
 
 }  // namespace easynav
