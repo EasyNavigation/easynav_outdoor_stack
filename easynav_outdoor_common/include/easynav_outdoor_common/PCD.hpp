@@ -44,78 +44,75 @@ namespace easynav
 
 /**
  * @class PCD
- * @brief Simple 2D uint8_t grid using basic C++ types, with full metric conversion support.
- *
- * Supports arbitrary metric origins, allowing negative coordinates.
+ * @brief Point Cloud representation using basic C++ types.
  */
 class PCD : public MapsTypeBase
 {
 public:
   /**
    * @brief Default constructor.
-   *
-   * Creates an empty (0x0) PCD with 1.0 meter resolution and origin (0.0, 0.0).
    */
   PCD();
 
   /**
-   * @brief Initialize the map to new dimensions, resolution, and origin.
+   * @brief Initialize the map with characteristics of Point Cloud 2.
    *
    * @param width Number of columns.
    * @param height Number of rows.
-   * @param resolution Size of each cell in meters.
-   * @param origin_x Metric X coordinate corresponding to cell (0,0).
-   * @param origin_y Metric Y coordinate corresponding to cell (0,0).
+   * @param point_step Number of elements per point.
+   * @param row_step Number of elements per row.
    */
   void initialize(
     std::size_t width_, std::size_t height_, std::size_t point_step_,
     std::size_t row_step_);
 
   /**
-   * @brief Load map data and metadata from a nav_msgs::msg::OccupancyGrid message.
+   * @brief Load map data from a PCD object.
    *
-   * This function resizes the internal grid to match the occupancy grid dimensions,
-   * sets the resolution and origin, and copies the data.
+   * This function get elements from another PCD object to copy data.
    *
-   * @param cloud_msg The occupancy grid message to load from.
+   * @param other PCD object source of data.
    */
   void deep_copy(const PCD & other);
 
   /**
-   * @brief Load map data and metadata from a nav_msgs::msg::OccupancyGrid message.
+   * @brief Load map data from sensor_msgs::msg::PointCloud2 message.
    *
-   * This function resizes the internal grid to match the occupancy grid dimensions,
-   * sets the resolution and origin, and copies the data.
+   * This function read data from a Point Cloud 2 msg to set values
+   * in PCD objects.
    *
-   * @param cloud_msg The occupancy grid message to load from.
+   * @param cloud_msg The Point Cloud 2 message to load from.
    */
   void from_point_cloud(const sensor_msgs::msg::PointCloud2 & cloud_msg);
 
   /**
-   * @brief Updates a nav_msgs::msg::OccupancyGrid message from the SimpleMap contents.
+   * @brief Updates a sensor_msgs::msg::PointCloud2 message from the sensors
+   * values into Easynav.
    *
-   * @param cloud_msg The occupancy grid message to fill or update.
+   * @param cloud_msg The Point Cloud 2 message to be configured.
+   * @param cloud Point Cloud with updated values from sensors.
    */
   void refresh(
     sensor_msgs::msg::PointCloud2 & cloud_msg,
     pcl::PointCloud<pcl::PointXYZ> & cloud) const;
 
   /**
-   * @brief Updates a nav_msgs::msg::OccupancyGrid message from the SimpleMap contents.
+   * @brief Updates a sensor_msgs::msg::PointCloud2 message from the PCD
+   * contents.
    *
-   * @param cloud_msg The occupancy grid message to fill or update.
+   * @param cloud_msg The Point Cloud 2 message to fill or update.
    */
   void to_point_cloud(sensor_msgs::msg::PointCloud2 & cloud_msg) const;
 
   /**
-  * @brief Saves the map to a file, including metadata and cell data.
+  * @brief Saves the map to a file.
   * @param path Path to the output file.
   * @return true if the file was written successfully, false otherwise.
   */
   bool save_to_file(const std::string & path) const;
 
   /**
-   * @brief Loads the map from a file, reading metadata and cell data.
+   * @brief Loads the map from a file.
    * @param path Path to the input file.
    * @return true if the file was read successfully and is valid, false otherwise.
    */

@@ -54,9 +54,9 @@ namespace easynav
  * @class PCDOutdoorMapsManager
  * @brief A plugin-based map manager using the PCD data structure.
  *
- * This manager implements a minimal mapping approach using boolean grid maps
+ * This manager implements a minimal mapping approach using Point Cloud Data
  * (PCD) for both static and dynamic maps. It supports publishing and
- * receiving ROS occupancy grids.
+ * receiving ROS Poitn Cloud 2 messages.
  */
 class PCDOutdoorMapsManager : public easynav::MapsManagerBase
 {
@@ -81,9 +81,9 @@ public:
   virtual std::expected<void, std::string> on_initialize() override;
 
   /**
-   * @brief Returns the current static map.
+   * @brief Returns static map and dynamic map.
    *
-   * @return Shared pointer to the static PCD instance.
+   * @return A map container with values for static and dynamic map for PCD representation.
    */
   [[nodiscard]] virtual std::map<std::string, std::shared_ptr<MapsTypeBase>> get_maps() override;
 
@@ -129,12 +129,12 @@ private:
   std::shared_ptr<PCD> dynamic_map_;
 
   /**
-   * @brief Publisher for the static occupancy grid.
+   * @brief Publisher for the static Point Cloud.
    */
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr static_map_pub_;
 
   /**
-   * @brief Publisher for the dynamic occupancy grid.
+   * @brief Publisher for the dynamic Point Cloud.
    */
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr dynamic_map_pub_;
 
@@ -149,12 +149,12 @@ private:
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr savemap_srv_;
 
   /**
-   * @brief Cached occupancy grid message for the static map.
+   * @brief Cached Point Cloud 2 message for the static map.
    */
   sensor_msgs::msg::PointCloud2 static_map_msg_;
 
   /**
-   * @brief Cached occupancy grid message for the dynamic map.
+   * @brief Cached Point Cloud 2 message for the dynamic map.
    */
   sensor_msgs::msg::PointCloud2 dynamic_map_msg_;
 

@@ -172,9 +172,6 @@ PCDOutdoorMapsManager::update(const NavState & nav_state)
 {
   dynamic_map_->deep_copy(*static_map_);
 
-  // RCLCPP_INFO(get_node()->get_logger(),
-  //     "PCDOutdoorMapsManager::update: Update cycle");
-
   auto fused = PerceptionsOpsView(nav_state.perceptions)
     .fuse("map")->as_points();
 
