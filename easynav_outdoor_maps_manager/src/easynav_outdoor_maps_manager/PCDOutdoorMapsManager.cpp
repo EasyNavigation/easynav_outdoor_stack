@@ -81,8 +81,11 @@ PCDOutdoorMapsManager::on_initialize()
   }
 
   if (map_path_file == "") {
-    map_path_file = "map.pcd";
+    map_path_ = "map.pcd";
   }
+
+  RCLCPP_INFO(get_node()->get_logger(),
+      "PCDOutdoorMapsManager::Map path file: %s", map_path_.c_str());
 
   static_map_pub_ = node->create_publisher<sensor_msgs::msg::PointCloud2>(
     node->get_name() + std::string("/") + plugin_name + "/static_map",

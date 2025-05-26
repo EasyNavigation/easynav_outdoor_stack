@@ -159,6 +159,7 @@ PCD::get_cloud(pcl::PointCloud<pcl::PointXYZ> & cloud) const
 bool
 PCD::save_to_file(const std::string & path) const
 {
+  std::cerr << " Path to save map: " << path << "\n";
   pcl::PointCloud<pcl::PointXYZ> temp_cloud;
   get_cloud(temp_cloud);
   pcl::io::savePCDFileASCII (path, temp_cloud);
