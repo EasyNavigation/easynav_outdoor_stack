@@ -70,6 +70,10 @@ PCDOutdoorMapsManager::on_initialize()
 
     if (!static_map_->load_from_file(map_path_)) {
       return std::unexpected("File [" + map_path_ + "] not found");
+    } else {
+      RCLCPP_INFO(get_node()->get_logger(),
+        "PCDOutdoorMapsManager::File read : Map loaded");
+      dynamic_map_->deep_copy(*static_map_);
     }
   }
 
@@ -129,6 +133,12 @@ PCDOutdoorMapsManager::on_initialize()
   tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node->get_clock());
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_, node,
     true);
+
+  static_map_->to_point_cloud(static_map_msg_);
+  static_map_msg_.header.frame_id = "map";
+  static_map_msg_.header.stamp = this->get_node()->now();
+
+  static_map_pub_->publish(static_map_msg_);
 
   return {};
 }
