@@ -25,6 +25,19 @@ Running the Simulation:
 
 This repository contains the **Maps builder for outdoor navigation**
 
+# Install
+
+Prepare your thirparty repos:
+
+```
+cd <easynav_ws>/src
+vcs import < easynav_outdoor_stack/easynav_outdoor_maps_builder/thirdparty.repos
+```
+
+You can now build the package.
+
+# Run
+
 With the same simulation, you can create a pointcloud map using for example `lidar_slam`. 
 
 In a new terminal, run the navigation system with:
@@ -32,7 +45,6 @@ In a new terminal, run the navigation system with:
 ```
 ros2 run easynav_outdoor_maps_builder outdoor_maps_builder_main  --ros-args \
 --params-file <your_workspace>/src/easynav_outdoor_stack/robots_params/summit_sim_slam.params.yaml
-
 ```
 
 In map types, it is possible to select pcl (pointcloud) and/or gridmap.
