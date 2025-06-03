@@ -23,6 +23,11 @@
 #include "lifecycle_msgs/msg/transition.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
+
+#include "easynav_common/RTTFBuffer.hpp"
+
 #include "easynav_outdoor_maps_builder/OutdoorMapsBuilderNode.hpp"
 
 int main(int argc, char **argv)
@@ -33,6 +38,9 @@ int main(int argc, char **argv)
 
   rclcpp::executors::SingleThreadedExecutor exec;
   exec.add_node(node->get_node_base_interface());
+
+  auto tf_node = rclcpp::Node::make_shared("tf_node");
+  auto tf_buffer = easynav::RTTFBuffer::getInstance(tf_node->get_clock());
 
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
   if (node->get_current_state().id() !=
@@ -51,7 +59,8 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  rclcpp::Rate rate(100);
+  tf2_ros::TransformListener tf_listener(*tf_buffer, tf_node, true);
+  rclcpp::Rate rate(10);
 
   while (rclcpp::ok()) {
     exec.spin_some();
@@ -64,6 +73,7 @@ int main(int argc, char **argv)
       for (auto & perception : perceptions) {
         if (perception->new_data) {
           node->cycle();
+          break;
         }
       }
     }

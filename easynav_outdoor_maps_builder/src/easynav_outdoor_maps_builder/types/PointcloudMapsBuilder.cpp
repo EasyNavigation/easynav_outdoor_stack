@@ -35,16 +35,9 @@ namespace easynav
 
 PointcloudMapsBuilder::PointcloudMapsBuilder(
   rclcpp_lifecycle::LifecycleNode::SharedPtr node,
-  const std::shared_ptr<Perceptions> & shared_perceptions)
-: MapsBuilder(node, shared_perceptions)
+  const std::shared_ptr<Perceptions> & processed_perceptions)
+: MapsBuilder(node, processed_perceptions)
 {
-  if (!node_->has_parameter("pcl.downsample_resolution")) {
-    node_->declare_parameter("pcl.downsample_resolution", 1.0);
-  }
-
-  if (!node_->has_parameter("pcl.perception_default_frame")) {
-    node_->declare_parameter("pcl.perception_default_frame", "map");
-  }
 
   pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(
         "map_builder/cloud_filtered", rclcpp::QoS(1).transient_local().reliable());
@@ -55,13 +48,8 @@ PointcloudMapsBuilder::on_configure(const rclcpp_lifecycle::State & state)
 {
   (void)state;
 
-
-  node_->get_parameter("pcl.downsample_resolution", downsample_resolution_);
-  node_->get_parameter("pcl.perception_default_frame", perception_default_frame_);
-
   return CallbackReturnT::SUCCESS;
 }
-
 
 MapsBuilder::CallbackReturnT
 PointcloudMapsBuilder::on_activate(const rclcpp_lifecycle::State & state)
@@ -95,17 +83,15 @@ PointcloudMapsBuilder::on_cleanup(const rclcpp_lifecycle::State & state)
 void PointcloudMapsBuilder::cycle()
 {
   if (pub_->get_subscription_count() > 0) {
-    auto & shared_perceptions = *perceptions_;
-    auto downsampled = PerceptionsOpsView(shared_perceptions).downsample(downsample_resolution_);
-    auto downsampled_points = downsampled.as_points();
+    auto & processed_perception = (*processed_perceptions_)[0];  // latest processed perception
 
-    if (downsampled_points.empty()) {
+    if (processed_perception->data.empty()) {
       return;
     }
 
-    auto msg = points_to_rosmsg(downsampled_points);
-    msg.header.frame_id = perception_default_frame_;
-    msg.header.stamp = (shared_perceptions)[0]->stamp;
+    auto msg = points_to_rosmsg(processed_perception->data);
+    msg.header.frame_id = processed_perception->frame_id;
+    msg.header.stamp = processed_perception->stamp;
     pub_->publish(msg);
   }
 }

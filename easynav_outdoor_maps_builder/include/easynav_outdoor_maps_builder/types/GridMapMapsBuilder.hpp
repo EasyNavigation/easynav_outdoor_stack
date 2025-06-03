@@ -33,69 +33,63 @@
 namespace easynav
 {
 
-/**
- * @class GridMapMapsBuilder
- * @brief Derived class of MapsBuilder specialized in generating grid maps from point cloud data.
- *
- * This class implements lifecycle methods and a processing cycle to convert
- * point cloud perceptions into grid map messages.
- */
+  /**
+   * @class GridMapMapsBuilder
+   * @brief Derived class of MapsBuilder specialized in generating grid maps from point cloud data.
+   *
+   * This class implements lifecycle methods and a processing cycle to convert
+   * point cloud perceptions into grid map messages.
+   */
 class GridMapMapsBuilder : public MapsBuilder
 {
 public:
-  /**
-   * @brief Constructor.
-   * @param node Pointer to the lifecycle node this builder is associated with.
-   * @param shared_perceptions Shared pointer to the perceptions data used for map building.
-   */
+    /**
+     * @brief Constructor.
+     * @param node Pointer to the lifecycle node this builder is associated with.
+     * @param shared_perceptions Shared pointer to the perceptions data used for map building.
+     */
   explicit GridMapMapsBuilder(
     rclcpp_lifecycle::LifecycleNode::SharedPtr node,
     const std::shared_ptr<Perceptions> & shared_perceptions);
 
-  /**
-   * @brief Lifecycle callback called when the node is configured.
-   * @param state The current lifecycle state.
-   * @return CallbackReturnT::SUCCESS on success, otherwise failure code.
-   */
+    /**
+     * @brief Lifecycle callback called when the node is configured.
+     * @param state The current lifecycle state.
+     * @return CallbackReturnT::SUCCESS on success, otherwise failure code.
+     */
   CallbackReturnT on_configure(const rclcpp_lifecycle::State & state) override;
 
-  /**
-   * @brief Lifecycle callback called when the node is activated.
-   * @param state The current lifecycle state.
-   * @return CallbackReturnT::SUCCESS on success, otherwise failure code.
-   */
+    /**
+     * @brief Lifecycle callback called when the node is activated.
+     * @param state The current lifecycle state.
+     * @return CallbackReturnT::SUCCESS on success, otherwise failure code.
+     */
   CallbackReturnT on_activate(const rclcpp_lifecycle::State & state) override;
 
-  /**
-   * @brief Lifecycle callback called when the node is deactivated.
-   * @param state The current lifecycle state.
-   * @return CallbackReturnT::SUCCESS on success, otherwise failure code.
-   */
+    /**
+     * @brief Lifecycle callback called when the node is deactivated.
+     * @param state The current lifecycle state.
+     * @return CallbackReturnT::SUCCESS on success, otherwise failure code.
+     */
   CallbackReturnT on_deactivate(const rclcpp_lifecycle::State & state) override;
 
-  /**
-   * @brief Lifecycle callback called when the node is cleaned up.
-   * @param state The current lifecycle state.
-   * @return CallbackReturnT::SUCCESS on success, otherwise failure code.
-   */
+    /**
+     * @brief Lifecycle callback called when the node is cleaned up.
+     * @param state The current lifecycle state.
+     * @return CallbackReturnT::SUCCESS on success, otherwise failure code.
+     */
   CallbackReturnT on_cleanup(const rclcpp_lifecycle::State & state) override;
 
-  /**
-   * @brief Processing method called periodically to process new perception data and publish grid maps.
-   */
+    /**
+     * @brief Processing method called periodically to process new perception data and publish grid maps.
+     */
   void cycle() override;
 
 private:
-  /// Publisher for grid map messages with lifecycle awareness.
+    /// Publisher for grid map messages with lifecycle awareness.
   rclcpp_lifecycle::LifecyclePublisher<grid_map_msgs::msg::GridMap>::SharedPtr pub_;
-
-  /// Resolution used for downsampling the input point cloud data.
-  double downsample_resolution_;
-
-  /// Default coordinate frame for the published grid map messages.
-  std::string perception_default_frame_;
 };
 
-}  // namespace easynav
+} // namespace easynav
 
-#endif  // EASYNAV_OUTDOOR_MAPS_BUILDER__GRIDMAPMAPSBUILDDER_HPP_
+#endif // EASYNAV_OUTDOOR_MAPS_BUILDER__GRIDMAPMAPSBUILDDER_HPP_

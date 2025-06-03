@@ -31,75 +31,74 @@
 namespace easynav
 {
 
-/**
- * @class MapsBuilder
- * @brief Abstract base class for map builders in the EasyNav outdoor mapping system.
- *
- * This class defines the interface and lifecycle methods that all concrete map builder
- * implementations must provide. It manages access to the shared perceptions data
- * and the lifecycle node.
- */
+  /**
+   * @class MapsBuilder
+   * @brief Abstract base class for map builders in the EasyNav outdoor mapping system.
+   *
+   * This class defines the interface and lifecycle methods that all concrete map builder
+   * implementations must provide. It manages access to the shared perceptions data
+   * and the lifecycle node.
+   */
 class MapsBuilder
 {
 public:
-  /// Alias for the lifecycle callback return type.
+    /// Alias for the lifecycle callback return type.
   using CallbackReturnT = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
-  /**
-   * @brief Constructor.
-   * @param node Pointer to the lifecycle node associated with this builder.
-   * @param shared_perceptions Shared pointer to the perceptions data used for map construction.
-   */
+    /**
+     * @brief Constructor.
+     * @param node Pointer to the lifecycle node associated with this builder.
+     * @param shared_perceptions Shared pointer to the perceptions data used for map construction.
+     */
   explicit MapsBuilder(
     rclcpp_lifecycle::LifecycleNode::SharedPtr node,
     const std::shared_ptr<Perceptions> & shared_perceptions)
-  : node_(node), perceptions_(shared_perceptions) {}
+  : node_(node), processed_perceptions_(shared_perceptions) {}
 
-  /// Virtual destructor.
+    /// Virtual destructor.
   virtual ~MapsBuilder() = default;
 
-  /**
-   * @brief Called during the configure lifecycle transition.
-   * @param state Current lifecycle state.
-   * @return CallbackReturnT indicating success or failure.
-   */
+    /**
+     * @brief Called during the configure lifecycle transition.
+     * @param state Current lifecycle state.
+     * @return CallbackReturnT indicating success or failure.
+     */
   virtual CallbackReturnT on_configure(const rclcpp_lifecycle::State & state) = 0;
 
-  /**
-   * @brief Called during the activate lifecycle transition.
-   * @param state Current lifecycle state.
-   * @return CallbackReturnT indicating success or failure.
-   */
+    /**
+     * @brief Called during the activate lifecycle transition.
+     * @param state Current lifecycle state.
+     * @return CallbackReturnT indicating success or failure.
+     */
   virtual CallbackReturnT on_activate(const rclcpp_lifecycle::State & state) = 0;
 
-  /**
-   * @brief Called during the deactivate lifecycle transition.
-   * @param state Current lifecycle state.
-   * @return CallbackReturnT indicating success or failure.
-   */
+    /**
+     * @brief Called during the deactivate lifecycle transition.
+     * @param state Current lifecycle state.
+     * @return CallbackReturnT indicating success or failure.
+     */
   virtual CallbackReturnT on_deactivate(const rclcpp_lifecycle::State & state) = 0;
 
-  /**
-   * @brief Called during the cleanup lifecycle transition.
-   * @param state Current lifecycle state.
-   * @return CallbackReturnT indicating success or failure.
-   */
+    /**
+     * @brief Called during the cleanup lifecycle transition.
+     * @param state Current lifecycle state.
+     * @return CallbackReturnT indicating success or failure.
+     */
   virtual CallbackReturnT on_cleanup(const rclcpp_lifecycle::State & state) = 0;
 
-  /**
-   * @brief Processing method called periodically to update map data.
-   */
+    /**
+     * @brief Processing method called periodically to update map data.
+     */
   virtual void cycle() = 0;
 
 protected:
-  /// Pointer to the lifecycle node this builder belongs to.
+    /// Pointer to the lifecycle node this builder belongs to.
   rclcpp_lifecycle::LifecycleNode::SharedPtr node_;
 
-  /// Shared perceptions data used by this builder.
-  std::shared_ptr<Perceptions> perceptions_;
-
+    /// Shared perceptions data used by this builder.
+  std::shared_ptr<Perceptions> processed_perceptions_;
 };
 
-}  // namespace easynav
+} // namespace easynav
 
-#endif  // EASYNAV_OUTDOOR_MAPS_BUILDER__MAPSBUILDER_HPP_
+#endif // EASYNAV_OUTDOOR_MAPS_BUILDER__MAPSBUILDER_HPP_

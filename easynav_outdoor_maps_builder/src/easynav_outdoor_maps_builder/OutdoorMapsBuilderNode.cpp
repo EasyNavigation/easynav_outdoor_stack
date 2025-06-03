@@ -47,6 +47,14 @@ OutdoorMapsBuilderNode::OutdoorMapsBuilderNode(const rclcpp::NodeOptions & optio
   if (!has_parameter("map_types")) {
     declare_parameter("map_types", std::vector<std::string>{});
   }
+
+  if (!has_parameter("downsample_resolution")) {
+    declare_parameter("downsample_resolution", 1.0);
+  }
+
+  if (!has_parameter("perception_default_frame")) {
+    declare_parameter("perception_default_frame", "map");
+  }
 }
 
 OutdoorMapsBuilderNode::~OutdoorMapsBuilderNode()
@@ -74,15 +82,19 @@ OutdoorMapsBuilderNode::on_configure(const rclcpp_lifecycle::State & state)
 
   get_parameter("map_types", map_types);
 
-  perceptions_ = std::make_shared<Perceptions>();
+  get_parameter("downsample_resolution", downsample_resolution_);
+  get_parameter("perception_default_frame", perception_default_frame_);
+
+  processed_perceptions_ = std::make_shared<Perceptions>();
   for (const auto & map_type : map_types) {
     if (map_type == "pcl") {
       RCLCPP_INFO(this->get_logger(), "Adding map builder type: '%s'", map_type.c_str());
       builders_.push_back(std::make_unique<PointcloudMapsBuilder>(shared_from_this(),
-          perceptions_));
+                                                                    processed_perceptions_));
     } else if (map_type == "gridmap") {
       RCLCPP_INFO(this->get_logger(), "Adding map builder type: '%s'", map_type.c_str());
-      builders_.push_back(std::make_unique<GridMapMapsBuilder>(shared_from_this(), perceptions_));
+      builders_.push_back(std::make_unique<GridMapMapsBuilder>(shared_from_this(),
+          processed_perceptions_));
     } else {
       RCLCPP_WARN(this->get_logger(), "Unknown map type: '%s'", map_type.c_str());
     }
@@ -97,16 +109,14 @@ OutdoorMapsBuilderNode::on_configure(const rclcpp_lifecycle::State & state)
       }
     }
   }
-
   auto perception_entry = std::make_shared<Perception>();
-  perception_entry->data.points.clear();
   perception_entry->data.clear();
+
   perception_entry->frame_id = "";
   perception_entry->stamp = now();
   perception_entry->valid = false;
-  perception_entry->new_data = true;
 
-  perceptions_->push_back(perception_entry);
+  perceptions_.push_back(perception_entry);
 
   perception_entry->subscription = create_typed_subscription<sensor_msgs::msg::PointCloud2>(
         *this, sensor_topic_, perception_entry, cbg_);
@@ -165,22 +175,37 @@ OutdoorMapsBuilderNode::on_cleanup(const rclcpp_lifecycle::State & state)
   }
 
   builders_.clear();
-  perceptions_->clear();
+  processed_perceptions_->clear();
 
   return CallbackReturnT::SUCCESS;
 }
 
 void OutdoorMapsBuilderNode::cycle()
 {
+    // Fuse and downsample all valid perceptions
+  auto fused_view = PerceptionsOpsView(perceptions_).fuse(perception_default_frame_);
+    // Reset new_data in perceptions
+  for (auto & p : perceptions_) {
+    if (p) {
+      p->new_data = false;
+    }
+  }
+  auto downsampled = fused_view->downsample(downsample_resolution_);
+
+  auto processed = std::make_shared<Perception>();
+  processed->data = downsampled.as_points();
+
+  processed->stamp = this->now();
+  processed->frame_id = perception_default_frame_;
+  processed->valid = true;
+  processed->new_data = true;
+
+  processed_perceptions_->clear();
+  processed_perceptions_->push_back(processed);
+
   for (auto & builder : builders_) {
     if (builder) {
       builder->cycle();
-    }
-  }
-    // mark perceptions as not new after processed
-  for (auto & perception : *perceptions_) {
-    if (perception->new_data) {
-      perception->new_data = false;
     }
   }
 }

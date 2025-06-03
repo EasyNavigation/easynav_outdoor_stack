@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EASYNAV_OUTDOOR_MAPS_BUILDER__POINTCLOUDMAPSBUILDER_HPP_
-#define EASYNAV_OUTDOOR_MAPS_BUILDER__POINTCLOUDMAPSBUILDER_HPP_
+#ifndef EASYNAV_OUTDOOR_MAPS_BUILDER__OCTOMAPMAPSBUILDER_HPP_
+#define EASYNAV_OUTDOOR_MAPS_BUILDER__OCTOMAPMAPSBUILDER_HPP_
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
@@ -31,63 +31,23 @@
 namespace easynav
 {
 
-  /**
-   * @class PointcloudMapsBuilder
-   * @brief Concrete MapsBuilder implementation for processing and publishing point cloud maps.
-   *
-   * This class handles point cloud data, applying downsampling and publishing
-   * the resulting map on a lifecycle-aware ROS2 publisher.
-   */
-class PointcloudMapsBuilder : public MapsBuilder
+class OctoMapMapsBuilder : public MapsBuilder
 {
 public:
-    /**
-     * @brief Constructor.
-     * @param node Pointer to the lifecycle node associated with this builder.
-     * @param perceptions Shared pointer to the perceptions data.
-     */
-  explicit PointcloudMapsBuilder(
+  explicit OctoMapMapsBuilder(
     rclcpp_lifecycle::LifecycleNode::SharedPtr node,
     const std::shared_ptr<Perceptions> & perceptions);
 
-    /**
-     * @brief Lifecycle configure callback.
-     * @param state Current lifecycle state.
-     * @return SUCCESS or FAILURE.
-     */
   CallbackReturnT on_configure(const rclcpp_lifecycle::State & state) override;
-
-    /**
-     * @brief Lifecycle activate callback.
-     * @param state Current lifecycle state.
-     * @return SUCCESS or FAILURE.
-     */
   CallbackReturnT on_activate(const rclcpp_lifecycle::State & state) override;
-
-    /**
-     * @brief Lifecycle deactivate callback.
-     * @param state Current lifecycle state.
-     * @return SUCCESS or FAILURE.
-     */
   CallbackReturnT on_deactivate(const rclcpp_lifecycle::State & state) override;
-
-    /**
-     * @brief Lifecycle cleanup callback.
-     * @param state Current lifecycle state.
-     * @return SUCCESS or FAILURE.
-     */
   CallbackReturnT on_cleanup(const rclcpp_lifecycle::State & state) override;
-
-    /**
-     * @brief Periodic processing cycle to update and publish point cloud map data.
-     */
   void cycle() override;
 
 private:
-    /// Lifecycle publisher for PointCloud2 messages.
   rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_;
 };
 
 } // namespace easynav
 
-#endif // EASYNAV_OUTDOOR_MAPS_BUILDER__POINTCLOUDMAPSBUILDER_HPP_
+#endif // EASYNAV_OUTDOOR_MAPS_BUILDER__OCTOMAPMAPSBUILDER_HPP_
