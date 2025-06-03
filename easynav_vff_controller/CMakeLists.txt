@@ -15,6 +15,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(easynav_core REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(visualization_msgs REQUIRED)
+find_package(tf2 REQUIRED)
 
 set(dependencies
   rclcpp
@@ -22,6 +23,7 @@ set(dependencies
   easynav_core
   pluginlib
   visualization_msgs
+  tf2
 )
 
 add_library(vff_controller SHARED
