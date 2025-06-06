@@ -35,7 +35,7 @@ namespace easynav
 
 PointcloudMapsBuilder::PointcloudMapsBuilder(
   rclcpp_lifecycle::LifecycleNode::SharedPtr node,
-  const std::shared_ptr<Perceptions> & processed_perceptions)
+  const std::shared_ptr<PerceptionsOpsView> & processed_perceptions)
 : MapsBuilder(node, processed_perceptions)
 {
 
@@ -82,16 +82,17 @@ PointcloudMapsBuilder::on_cleanup(const rclcpp_lifecycle::State & state)
 
 void PointcloudMapsBuilder::cycle()
 {
-  if (pub_->get_subscription_count() > 0) {
-    auto & processed_perception = (*processed_perceptions_)[0];  // latest processed perception
 
-    if (processed_perception->data.empty()) {
+  if (pub_->get_subscription_count() > 0) {
+
+    auto & data_perception = processed_perceptions_->get_perceptions()[0];  // supported just one perception source
+
+    if (processed_perceptions_->as_points().empty()) {
       return;
     }
-
-    auto msg = points_to_rosmsg(processed_perception->data);
-    msg.header.frame_id = processed_perception->frame_id;
-    msg.header.stamp = processed_perception->stamp;
+    auto msg = points_to_rosmsg(processed_perceptions_->as_points());
+    msg.header.frame_id = data_perception->frame_id;
+    msg.header.stamp = data_perception->stamp;
     pub_->publish(msg);
   }
 }

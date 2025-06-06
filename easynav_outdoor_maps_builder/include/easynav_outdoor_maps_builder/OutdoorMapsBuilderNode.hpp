@@ -78,7 +78,6 @@ public:
      * @brief Accessor for the current perceptions data.
      * @return Const reference to Perceptions.
      */
-  const Perceptions & get_perceptions() const {return perceptions_;}
 
 private:
     /// Container holding the various map builders for different map types.
@@ -91,7 +90,7 @@ private:
   Perceptions perceptions_;
 
     /// Shared pointer to processed perception data used by map builders.
-  std::shared_ptr<Perceptions> processed_perceptions_;
+  std::shared_ptr<PerceptionsOpsView> processed_perceptions_;
 
     /// Subscription to sensor_msgs::msg::PointCloud2 messages.
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;

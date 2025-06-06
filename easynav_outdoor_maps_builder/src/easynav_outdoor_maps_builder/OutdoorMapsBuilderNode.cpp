@@ -30,6 +30,7 @@
 #include "easynav_outdoor_maps_builder/types/MapsBuilder.hpp"
 #include "easynav_outdoor_maps_builder/types/PointcloudMapsBuilder.hpp"
 #include "easynav_outdoor_maps_builder/types/GridMapMapsBuilder.hpp"
+// #include "easynav_outdoor_maps_builder/types/OctoMapMapsBuilder.hpp"
 #include "easynav_common/types/Perceptions.hpp"
 
 namespace easynav
@@ -85,7 +86,8 @@ OutdoorMapsBuilderNode::on_configure(const rclcpp_lifecycle::State & state)
   get_parameter("downsample_resolution", downsample_resolution_);
   get_parameter("perception_default_frame", perception_default_frame_);
 
-  processed_perceptions_ = std::make_shared<Perceptions>();
+  processed_perceptions_ = std::make_shared<PerceptionsOpsView>(perceptions_);
+
   for (const auto & map_type : map_types) {
     if (map_type == "pcl") {
       RCLCPP_INFO(this->get_logger(), "Adding map builder type: '%s'", map_type.c_str());
@@ -94,7 +96,13 @@ OutdoorMapsBuilderNode::on_configure(const rclcpp_lifecycle::State & state)
     } else if (map_type == "gridmap") {
       RCLCPP_INFO(this->get_logger(), "Adding map builder type: '%s'", map_type.c_str());
       builders_.push_back(std::make_unique<GridMapMapsBuilder>(shared_from_this(),
-          processed_perceptions_));
+                                                                 processed_perceptions_));
+        // }
+        // else if (map_type == "octomap")
+        // {
+        //   RCLCPP_INFO(this->get_logger(), "Adding map builder type: '%s'", map_type.c_str());
+        //   builders_.push_back(std::make_unique<OctoMapMapsBuilder>(shared_from_this(),
+        //                                                            processed_perceptions_));
     } else {
       RCLCPP_WARN(this->get_logger(), "Unknown map type: '%s'", map_type.c_str());
     }
@@ -110,7 +118,6 @@ OutdoorMapsBuilderNode::on_configure(const rclcpp_lifecycle::State & state)
     }
   }
   auto perception_entry = std::make_shared<Perception>();
-  perception_entry->data.clear();
 
   perception_entry->frame_id = "";
   perception_entry->stamp = now();
@@ -140,7 +147,6 @@ OutdoorMapsBuilderNode::on_activate(const rclcpp_lifecycle::State & state)
 
   return CallbackReturnT::SUCCESS;
 }
-
 CallbackReturnT
 OutdoorMapsBuilderNode::on_deactivate(const rclcpp_lifecycle::State & state)
 {
@@ -175,39 +181,45 @@ OutdoorMapsBuilderNode::on_cleanup(const rclcpp_lifecycle::State & state)
   }
 
   builders_.clear();
-  processed_perceptions_->clear();
+  processed_perceptions_.reset();
 
   return CallbackReturnT::SUCCESS;
 }
 
 void OutdoorMapsBuilderNode::cycle()
 {
-    // Fuse and downsample all valid perceptions
-  auto fused_view = PerceptionsOpsView(perceptions_).fuse(perception_default_frame_);
+    // Finish cycle if no new perceptions
+  if (std::none_of(perceptions_.begin(), perceptions_.end(),
+    [](const auto & perception)
+    {return perception && perception->new_data;}))
+  {
+    return;
+  }
+
+  PerceptionsOpsView view(perceptions_);
+
+    // Fuse perceptions if the frame_id is different from default
+  if (!perceptions_.empty() && perceptions_[0] &&
+    perceptions_[0]->frame_id != perception_default_frame_)
+  {
+    processed_perceptions_ = view.fuse(perception_default_frame_);
+  } else {
+    processed_perceptions_ = std::make_shared<PerceptionsOpsView>(std::move(view));
+  }
+  processed_perceptions_->downsample(downsample_resolution_);
+
     // Reset new_data in perceptions
-  for (auto & p : perceptions_) {
-    if (p) {
-      p->new_data = false;
+  for (auto & perception : perceptions_) {
+    if (perception->new_data) {
+      perception->new_data = false;
     }
   }
-  auto downsampled = fused_view->downsample(downsample_resolution_);
-
-  auto processed = std::make_shared<Perception>();
-  processed->data = downsampled.as_points();
-
-  processed->stamp = this->now();
-  processed->frame_id = perception_default_frame_;
-  processed->valid = true;
-  processed->new_data = true;
-
-  processed_perceptions_->clear();
-  processed_perceptions_->push_back(processed);
 
   for (auto & builder : builders_) {
     if (builder) {
+      builder->set_processed_perceptions(processed_perceptions_);
       builder->cycle();
     }
   }
 }
-
 } // namespace easynav

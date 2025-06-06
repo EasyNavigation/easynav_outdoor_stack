@@ -52,7 +52,7 @@ public:
      */
   explicit MapsBuilder(
     rclcpp_lifecycle::LifecycleNode::SharedPtr node,
-    const std::shared_ptr<Perceptions> & shared_perceptions)
+    const std::shared_ptr<PerceptionsOpsView> & shared_perceptions)
   : node_(node), processed_perceptions_(shared_perceptions) {}
 
     /// Virtual destructor.
@@ -87,16 +87,27 @@ public:
   virtual CallbackReturnT on_cleanup(const rclcpp_lifecycle::State & state) = 0;
 
     /**
-     * @brief Processing method called periodically to update map data.
+     * @brief Periodic processing method to update map data.
+     *
+     * Called regularly (e.g., in a main loop) to perform map building operations.
      */
   virtual void cycle() = 0;
+
+    /**
+     * @brief Set the shared processed perceptions data.
+     * @param pp Shared pointer to updated PerceptionsOpsView.
+     */
+  void set_processed_perceptions(const std::shared_ptr<PerceptionsOpsView> & pp)
+  {
+    processed_perceptions_ = pp;
+  }
 
 protected:
     /// Pointer to the lifecycle node this builder belongs to.
   rclcpp_lifecycle::LifecycleNode::SharedPtr node_;
 
     /// Shared perceptions data used by this builder.
-  std::shared_ptr<Perceptions> processed_perceptions_;
+  std::shared_ptr<PerceptionsOpsView> processed_perceptions_;
 };
 
 } // namespace easynav

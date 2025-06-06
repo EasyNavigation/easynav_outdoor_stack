@@ -50,7 +50,7 @@ public:
      */
   explicit GridMapMapsBuilder(
     rclcpp_lifecycle::LifecycleNode::SharedPtr node,
-    const std::shared_ptr<Perceptions> & shared_perceptions);
+    const std::shared_ptr<PerceptionsOpsView> & shared_perceptions);
 
     /**
      * @brief Lifecycle callback called when the node is configured.

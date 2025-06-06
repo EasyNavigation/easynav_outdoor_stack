@@ -68,14 +68,7 @@ int main(int argc, char **argv)
     if (node->get_current_state().id() ==
       lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE)
     {
-      auto perceptions = node->get_perceptions();
-
-      for (auto & perception : perceptions) {
-        if (perception->new_data) {
-          node->cycle();
-          break;
-        }
-      }
+      node->cycle();
     }
 
     rate.sleep();

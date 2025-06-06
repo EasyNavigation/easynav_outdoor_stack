@@ -48,7 +48,7 @@ public:
      */
   explicit PointcloudMapsBuilder(
     rclcpp_lifecycle::LifecycleNode::SharedPtr node,
-    const std::shared_ptr<Perceptions> & perceptions);
+    const std::shared_ptr<PerceptionsOpsView> & perceptions);
 
     /**
      * @brief Lifecycle configure callback.

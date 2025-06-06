@@ -36,7 +36,7 @@ namespace easynav
 {
 GridMapMapsBuilder::GridMapMapsBuilder(
   rclcpp_lifecycle::LifecycleNode::SharedPtr node,
-  const std::shared_ptr<Perceptions> & processed_perceptions)
+  const std::shared_ptr<PerceptionsOpsView> & processed_perceptions)
 : MapsBuilder(node, processed_perceptions)
 {
 
@@ -83,22 +83,22 @@ GridMapMapsBuilder::on_cleanup(const rclcpp_lifecycle::State & state)
 void GridMapMapsBuilder::cycle()
 {
   if (pub_->get_subscription_count() > 0) {
+    auto processed_cloud = processed_perceptions_->as_points();
+    auto & data_perception = processed_perceptions_->get_perceptions()[0];
 
-    auto & processed_perception = (*processed_perceptions_)[0];  // latest processed perception
-
-    if (processed_perception->data.empty()) {
+    if (processed_cloud.empty()) {
       return;
     }
 
     grid_map::GridMap map({"elevation"});
-    map.setFrameId(processed_perception->frame_id);
-    map.setTimestamp(processed_perception->stamp.nanoseconds());
+    map.setFrameId(data_perception->frame_id);
+    map.setTimestamp(data_perception->stamp.nanoseconds());
 
       // Get Geometry from PCL Cloud
     float min_x = std::numeric_limits<float>::max(), max_x = std::numeric_limits<float>::min();
     float min_y = std::numeric_limits<float>::max(), max_y = std::numeric_limits<float>::min();
 
-    for (const auto & pt : processed_perception->data) {
+    for (const auto & pt : processed_cloud) {
       if (!std::isfinite(pt.x) || !std::isfinite(pt.y) || !std::isfinite(pt.z)) {
         continue;
       }
@@ -120,7 +120,7 @@ void GridMapMapsBuilder::cycle()
     map["elevation"].setConstant(0.0);   // Initialize elevations of all cells to zero
 
       // Set elevation
-    for (const auto & pt : processed_perception->data) {
+    for (const auto & pt : processed_cloud) {
       grid_map::Position pos(pt.x, pt.y);
       grid_map::Index index;
       if (map.getIndex(pos, index)) {
@@ -134,7 +134,7 @@ void GridMapMapsBuilder::cycle()
     }
 
     auto msg = grid_map::GridMapRosConverter::toMessage(map);
-    msg->header.stamp = processed_perception->stamp;
+    msg->header.stamp = data_perception->stamp;
     pub_->publish(std::move(msg));
   }
 }
