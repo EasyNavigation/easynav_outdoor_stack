@@ -26,9 +26,9 @@ jobs:
           required-ros-distributions: rolling
 
       - name: build and test
-        uses: ros-tooling/action-ros-ci@0.4.1
+        uses: ros-tooling/action-ros-ci@0.4.3
         with:
-          package-name: easynav_outdoor_maps_builder easynav_outdoor_maps_manager easynav_vff_controller easynav_gps_localizer
+          package-name: easynav_vff_controller easynav_gps_localizer
           target-ros2-distro: rolling
           vcs-repo-file-url: ${GITHUB_WORKSPACE}/.github/thirdparty.repos
           skip-test: true
