@@ -1,0 +1,9 @@
+repositories:
+  ThirdParty/easynav_gridmap_stack:
+    type: git
+    url: https://github.com/EasyNavigation/easynav_gridmap_stack
+    version: rolling
+  ThirdParty/easynav_gridmap_stack:
+    type: git
+    url: https://github.com/EasyNavigation/easynav_pointcloud_stack.git
+    version: rolling

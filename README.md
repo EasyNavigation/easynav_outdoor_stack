@@ -21,9 +21,7 @@ Running the Simulation:
 3. Send a Goal from the `2D Goal Pose` button on RViz2
 
 
-# Outdoor maps builder (WIP)
-
-This repository contains the **Maps builder for outdoor navigation**
+# Outdoor testcase
 
 # Install
 
@@ -31,7 +29,7 @@ Prepare your thirparty repos:
 
 ```
 cd <easynav_ws>/src
-vcs import < easynav_outdoor_stack/easynav_outdoor_maps_builder/thirdparty.repos
+vcs import < easynav_outdoor_testcase/thirdparty.repos
 ```
 
 You can now build the package.
@@ -40,11 +38,17 @@ You can now build the package.
 
 With the same simulation, you can create a pointcloud map using for example `lidar_slam`. 
 
-In a new terminal, run the navigation system with:
+In a new terminal, run the maps builder system with for pointcloud:
 
 ```
-ros2 run easynav_outdoor_maps_builder outdoor_maps_builder_main  --ros-args \
---params-file <your_workspace>/src/easynav_outdoor_stack/robots_params/summit_sim_slam.params.yaml
+ros2 run easynav_pointcloud_maps_builder pointcloud_maps_builder_main  --ros-args \
+--params-file <your_workspace>/src/easynav_outdoor_testcase/robots_params/maps_builder.params.yaml
 ```
 
-In map types, it is possible to select pcl (pointcloud) and/or gridmap.
+
+In a new terminal, run the maps builder system with for gridmap:
+
+```
+ros2 run easynav_gridmap_maps_builder gridmap_maps_builder_main  --ros-args \
+--params-file <your_workspace>/src/easynav_outdoor_testcase/robots_params/maps_builder.params.yaml
+```
