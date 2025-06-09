@@ -1,4 +1,4 @@
-# easynav_outdoor_stack
+# easynav_outdoor_testcase
 
 # VFF-based outdoor navigation system
 
