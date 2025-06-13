@@ -1,0 +1,11 @@
+pointcloud_maps_builder_node:
+  ros__parameters:
+    sensor_topic: "/map"
+    downsample_resolution: 1.0
+    perception_default_frame: "map"
+
+gridmap_maps_builder_node:
+  ros__parameters:
+    sensor_topic: "/map"
+    downsample_resolution: 1.0
+    perception_default_frame: "map"
