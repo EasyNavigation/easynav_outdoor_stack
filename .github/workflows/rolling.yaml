@@ -28,14 +28,15 @@ jobs:
       - name: build and test
         uses: ros-tooling/action-ros-ci@0.4.3
         with:
-          package-name: easynav_vff_controller easynav_gps_localizer
+          package-name:  easynav_outdoor_testcase
           target-ros2-distro: rolling
           vcs-repo-file-url: ${GITHUB_WORKSPACE}/.github/thirdparty.repos
-          skip-test: true
+          skip-tests: true
           colcon-defaults: |
             {
               "build": {
-                "packages-up-to": true
+                "packages-up-to": true,
+                  "mixin": ["coverage-gcc"]
               }
             }
           colcon-mixin-name: coverage-gcc
